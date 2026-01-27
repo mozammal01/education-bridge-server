@@ -1,25 +1,7 @@
+import { ApplyAsTutorPayload, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces";
 import { prisma } from "../../lib/prisma";
 
-interface ApplyAsTutorPayload {
-    userId: string;
-    bio: string;
-    hourlyRate: number;
-    experience: number;
-    categoryId: string;
-}
-interface UpdateTutorProfilePayload {
-    bio: string;
-    hourlyRate: number;
-    experience: number;
-    categoryId: string;
-}
 
-interface UpdateTutorAvailabilityPayload {
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    isAvailable: boolean;
-}
 
 const getTutors = async () => {
     return await prisma.tutorProfile.findMany({

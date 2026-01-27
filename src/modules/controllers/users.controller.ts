@@ -19,11 +19,11 @@ const getUsers = async (req: Request, res: Response) => {
     }
 }
 
-const getUserById = async (req: Request, res: Response) => {
+const updateUserById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
-        const result = await UserService.getUserById(id as string)
-
+        const result = await UserService.updateUserById(id as string, req.body)
+        console.log(result)
         if (!result) {
             return res.status(404).json({
                 success: false,
@@ -49,5 +49,5 @@ const getUserById = async (req: Request, res: Response) => {
 
 export const UserController = {
     getUsers,
-    getUserById,
+    updateUserById
 }

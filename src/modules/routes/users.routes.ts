@@ -10,10 +10,10 @@ router.get(
     auth(UserRole.ADMIN),
     UserController.getUsers
 )
-router.get(
+router.patch(
     "/admin/users/:id",
     auth(UserRole.ADMIN),
-    UserController.getUserById
+    UserController.updateUserById
 )
 
 export const usersRouter: Router = router;
