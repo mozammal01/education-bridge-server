@@ -7,6 +7,7 @@ import errorHandler from "./middlewares/globalErrorHandler";
 import { tutorRouter } from "./modules/routes/tutor.routes";
 import { prisma } from "./lib/prisma";
 import { categoriesRouter } from "./modules/routes/categories.routes";
+import { bookingsRouter } from "./modules/routes/bookings.routes";
 
 const app: Application = express();
 
@@ -61,6 +62,7 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use("/api", tutorRouter);
 app.use("/api", categoriesRouter);
+app.use("/api", bookingsRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello from Education Bridge Server");

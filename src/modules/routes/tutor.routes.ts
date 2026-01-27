@@ -12,11 +12,6 @@ router.get(
     "/tutors/:id",
     TutorController.getTutorById
 )
-router.get(
-    "/categories",
-    TutorController.getCategories
-)
-
 
 router.post(
     "/tutors/apply",

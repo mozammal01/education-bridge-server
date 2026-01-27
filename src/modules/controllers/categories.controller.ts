@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { TutorService } from "../services/tutor.service";
 import { CategoriesService } from "../services/categories.service";
 
 
 const getCategories = async (req: Request, res: Response) => {
     try {
-        const result = await TutorService.getCategories()
+        const result = await CategoriesService.getCategories()
         res.status(200).json({
             success: true,
             message: "Categories fetched successfully",

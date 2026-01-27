@@ -46,24 +46,6 @@ const getTutorById = async (req: Request, res: Response) => {
     }
 }
 
-
-const getCategories = async (req: Request, res: Response) => {
-    try {
-        const result = await TutorService.getCategories()
-        res.status(200).json({
-            success: true,
-            message: "Categories fetched successfully",
-            data: result
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: "Categories fetched failed",
-            error: e.message
-        })
-    }
-}
-
 const applyAsTutor = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -109,6 +91,5 @@ const applyAsTutor = async (req: Request, res: Response) => {
 export const TutorController = {
     getTutors,
     getTutorById,
-    getCategories,
     applyAsTutor,
 }

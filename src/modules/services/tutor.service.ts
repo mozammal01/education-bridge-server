@@ -104,10 +104,6 @@ const getTutorById = async (id: string) => {
     return tutor;
 }
 
-const getCategories = async () => {
-    return await prisma.category.findMany()
-}
-
 const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
     const { userId, bio, hourlyRate, experience, categoryId } = payload;
 
@@ -167,6 +163,5 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
 export const TutorService = {
     getTutors,
     getTutorById,
-    getCategories,
     applyAsTutor,
 }
