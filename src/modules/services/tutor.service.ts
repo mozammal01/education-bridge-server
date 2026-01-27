@@ -1,11 +1,92 @@
-import { ApplyAsTutorPayload, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces";
+import { ApplyAsTutorPayload, TutorFilterParams, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces";
 import { prisma } from "../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 
 
 
-const getTutors = async () => {
-    return await prisma.tutorProfile.findMany({
-        orderBy: { createdAt: "desc" },
+const getTutors = async (filters: TutorFilterParams = {}) => {
+    const {
+        categoryId,
+        minRating,
+        maxRating,
+        minPrice,
+        maxPrice,
+        search,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        page = 1,
+        limit = 10
+    } = filters;
+
+    // Build where clause
+    const where: Prisma.TutorProfileWhereInput = {};
+
+    // Filter by category
+    if (categoryId) {
+        where.categoryId = categoryId;
+    }
+
+    // Filter by rating range
+    if (minRating !== undefined || maxRating !== undefined) {
+        where.averageRating = {};
+        if (minRating !== undefined) {
+            where.averageRating.gte = minRating;
+        }
+        if (maxRating !== undefined) {
+            where.averageRating.lte = maxRating;
+        }
+    }
+
+    // Filter by price range
+    if (minPrice !== undefined || maxPrice !== undefined) {
+        where.hourlyRate = {};
+        if (minPrice !== undefined) {
+            where.hourlyRate.gte = minPrice;
+        }
+        if (maxPrice !== undefined) {
+            where.hourlyRate.lte = maxPrice;
+        }
+    }
+
+    // Search by tutor name
+    if (search) {
+        where.user = {
+            name: {
+                contains: search,
+                mode: 'insensitive'
+            }
+        };
+    }
+
+    // Build orderBy clause
+    let orderBy: Prisma.TutorProfileOrderByWithRelationInput = {};
+    
+    switch (sortBy) {
+        case 'rating':
+            orderBy = { averageRating: sortOrder };
+            break;
+        case 'price':
+            orderBy = { hourlyRate: sortOrder };
+            break;
+        case 'experience':
+            orderBy = { experience: sortOrder };
+            break;
+        default:
+            orderBy = { createdAt: sortOrder };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination meta
+    const total = await prisma.tutorProfile.count({ where });
+
+    // Get filtered tutors
+    const tutors = await prisma.tutorProfile.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
         include: {
             user: {
                 select: {
@@ -22,7 +103,17 @@ const getTutors = async () => {
                 }
             }
         }
-    })
+    });
+
+    return {
+        tutors,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
 }
 
 const getTutorById = async (id: string) => {

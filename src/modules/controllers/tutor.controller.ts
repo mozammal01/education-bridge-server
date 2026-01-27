@@ -5,11 +5,41 @@ import { OthersService } from "../services/others.service";
 
 const getTutors = async (req: Request, res: Response) => {
     try {
-        const result = await TutorService.getTutors()
+        // Extract filter params from query string
+        const {
+            categoryId,
+            minRating,
+            maxRating,
+            minPrice,
+            maxPrice,
+            search,
+            sortBy,
+            sortOrder,
+            page,
+            limit
+        } = req.query;
+
+        // Build filter object with proper type conversion (only include defined values)
+        const filters: Record<string, any> = {
+            page: page ? parseInt(page as string) : 1,
+            limit: limit ? parseInt(limit as string) : 10
+        };
+
+        if (categoryId) filters.categoryId = categoryId as string;
+        if (minRating) filters.minRating = parseFloat(minRating as string);
+        if (maxRating) filters.maxRating = parseFloat(maxRating as string);
+        if (minPrice) filters.minPrice = parseFloat(minPrice as string);
+        if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
+        if (search) filters.search = search as string;
+        if (sortBy) filters.sortBy = sortBy as 'rating' | 'price' | 'experience';
+        if (sortOrder) filters.sortOrder = sortOrder as 'asc' | 'desc';
+
+        const result = await TutorService.getTutors(filters)
         res.status(200).json({
             success: true,
             message: "Tutors fetched successfully",
-            data: result
+            data: result.tutors,
+            meta: result.meta
         })
     } catch (e: any) {
         res.status(400).json({

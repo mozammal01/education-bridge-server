@@ -28,3 +28,16 @@ export interface UpdateUserPayload {
   role?: Role;
   status?: UserStatus;
 }
+
+export interface TutorFilterParams {
+  categoryId?: string;
+  minRating?: number;
+  maxRating?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  search?: string;
+  sortBy?: 'rating' | 'price' | 'experience';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}

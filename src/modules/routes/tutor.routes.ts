@@ -14,6 +14,7 @@ router.get(
 )
 
 router.put("/tutor/profile", auth(UserRole.TUTOR), TutorController.updateTutorProfile)
+
 router.put("/tutor/availability", auth(UserRole.TUTOR), TutorController.updateTutorAvailability)
 
 router.post(
