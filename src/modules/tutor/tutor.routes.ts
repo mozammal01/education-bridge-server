@@ -3,9 +3,10 @@ import { TutorController } from './tutor.controller';
 import auth, { UserRole } from '../../middlewares/auth';
 
 const router = express.Router();
+
 router.get(
     "/tutors",
-    TutorController.getTutorById
+    TutorController.getTutors
 )
 router.get(
     "/tutors/:id",
@@ -13,7 +14,14 @@ router.get(
 )
 router.get(
     "/categories",
-    TutorController.getTutorById
+    TutorController.getCategories
+)
+
+
+router.post(
+    "/tutors/apply",
+    auth(UserRole.STUDENT),
+    TutorController.applyAsTutor
 )
 
 export const tutorRouter: Router = router;

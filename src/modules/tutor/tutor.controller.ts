@@ -1,36 +1,114 @@
 import { Request, Response } from "express";
 import { TutorService } from "./tutor.service";
 
-const getTutorById = async (req: Request, res: Response) => {
-    res.status(200).json({
-        message: "Tutor fetched successfully"
-    })
-    // try {
-    //     const { tutorId } = req.params
-    //     const result = await TutorService.getTutorById(tutorId as string)
-    //     res.status(200).json(result)
-    // } catch (e) {
-    //     res.status(400).json({
-    //         error: "Tutor fetched failed",
-    //         details: e
-    //     })
-    // }
+
+const getTutors = async (req: Request, res: Response) => {
+    try {
+        const result = await TutorService.getTutors()
+        res.status(200).json({
+            success: true,
+            message: "Tutors fetched successfully",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: "Tutors fetched failed",
+            error: e.message
+        })
+    }
 }
 
-const getTutorByUserId = async (req: Request, res: Response) => {
+const getTutorById = async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params
-        const result = await TutorService.getTutorByUserId(userId as string)
-        res.status(200).json(result)
-    } catch (e) {
+        const { id } = req.params
+        const result = await TutorService.getTutorById(id as string)
+        console.log(result)
+
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                message: "Tutor not found"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Tutor fetched successfully",
+            data: result
+        })
+    } catch (e: any) {
         res.status(400).json({
-            error: "Tutor fetched failed",
-            details: e
+            success: false,
+            message: "Tutor fetched failed",
+            error: e.message
+        })
+    }
+}
+
+
+const getCategories = async (req: Request, res: Response) => {
+    try {
+        const result = await TutorService.getCategories()
+        res.status(200).json({
+            success: true,
+            message: "Categories fetched successfully",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: "Categories fetched failed",
+            error: e.message
+        })
+    }
+}
+
+const applyAsTutor = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            })
+        }
+
+        const { bio, hourlyRate, experience, categoryId } = req.body;
+
+        // Basic validation
+        if (!bio || !hourlyRate || !experience || !categoryId) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: bio, hourlyRate, experience, categoryId"
+            })
+        }
+
+        const result = await TutorService.applyAsTutor({
+            userId,
+            bio,
+            hourlyRate: parseFloat(hourlyRate),
+            experience: parseInt(experience),
+            categoryId
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Successfully registered as a tutor!",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: e.message || "Failed to apply as tutor"
         })
     }
 }
 
 export const TutorController = {
+    getTutors,
     getTutorById,
-    getTutorByUserId,
+    getCategories,
+    applyAsTutor,
 }
