@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { UserRole } from "../middlewares/auth";
+import { auth } from "../lib/auth";
 
 async function seedAdmin() {
     try {
@@ -23,28 +24,31 @@ async function seedAdmin() {
             throw new Error("User already exists!!");
         }
 
-        const signUpAdmin = await fetch("http://localhost:5000/api/auth/sign-up/email", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(adminData) 
-        })
+        // Use better-auth's server-side API to create user
+        const createdUser = await auth.api.signUpEmail({
+            body: {
+                name: adminData.name,
+                email: adminData.email,
+                password: adminData.password
+            }
+        });
 
+        console.log("Admin created:", createdUser);
 
-
-        if (signUpAdmin.ok) {
+        if (createdUser) {
             console.log("Admin created successfully")
+            // Update role and email verification status
             await prisma.user.update({
                 where: {
                     email: adminData.email
                 },
                 data: {
+                    role: adminData.role,
                     emailVerified: true
                 }
             })
 
-            console.log("Email verification status updated!")
+            console.log("Role and email verification status updated!")
         }
         console.log("SUCCESS")
 

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { TutorService } from "../services/tutor.service";
+import { OthersService } from "../services/others.service";
 
 
 const getTutors = async (req: Request, res: Response) => {
@@ -88,8 +89,9 @@ const applyAsTutor = async (req: Request, res: Response) => {
     }
 }
 
+
 export const TutorController = {
     getTutors,
     getTutorById,
-    applyAsTutor,
+    applyAsTutor
 }

@@ -8,6 +8,8 @@ import { tutorRouter } from "./modules/routes/tutor.routes";
 import { prisma } from "./lib/prisma";
 import { categoriesRouter } from "./modules/routes/categories.routes";
 import { bookingsRouter } from "./modules/routes/bookings.routes";
+import { usersRouter } from "./modules/routes/users.routes";
+import { othersRouter } from "./modules/routes/others.routes";
 
 const app: Application = express();
 
@@ -60,9 +62,11 @@ app.get("/api/auth/me", async (req, res) => {
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.use("/api", tutorRouter);
-app.use("/api", categoriesRouter);
-app.use("/api", bookingsRouter);
+app.use("/api/admin", usersRouter);
+app.use("/api/tutors", tutorRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/bookings", bookingsRouter);
+app.use("/api", othersRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello from Education Bridge Server");
