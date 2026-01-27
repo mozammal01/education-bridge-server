@@ -62,10 +62,10 @@ app.get("/api/auth/me", async (req, res) => {
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.use("/api/admin", usersRouter);
-app.use("/api/tutors", tutorRouter);
-app.use("/api/categories", categoriesRouter);
-app.use("/api/bookings", bookingsRouter);
+app.use("/api", usersRouter);
+app.use("/api", tutorRouter);
+app.use("/api", categoriesRouter);
+app.use("/api", bookingsRouter);
 app.use("/api", othersRouter);
 
 app.get("/", (req, res) => {

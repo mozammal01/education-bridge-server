@@ -47,6 +47,42 @@ const getTutorById = async (req: Request, res: Response) => {
     }
 }
 
+const updateTutorProfile = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const result = await TutorService.updateTutorProfile(id as string, req.body)
+        res.status(200).json({
+            success: true,
+            message: "Tutor profile updated successfully",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: "Tutor profile updated failed",
+            error: e.message
+        })
+    }
+}
+
+const updateTutorAvailability = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const result = await TutorService.updateTutorAvailability(id as string, req.body)
+        res.status(200).json({
+            success: true,
+            message: "Tutor availability updated successfully",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: "Tutor availability updated failed",
+            error: e.message
+        })
+    }
+}
+
 const applyAsTutor = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -93,5 +129,7 @@ const applyAsTutor = async (req: Request, res: Response) => {
 export const TutorController = {
     getTutors,
     getTutorById,
-    applyAsTutor
+    applyAsTutor,
+    updateTutorProfile,
+    updateTutorAvailability
 }

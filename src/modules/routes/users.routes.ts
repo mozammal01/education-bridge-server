@@ -6,12 +6,12 @@ import { UserController } from '../controllers/users.controller';
 const router = express.Router();
 
 router.get(
-    "/users",
+    "/admin/users",
     auth(UserRole.ADMIN),
     UserController.getUsers
 )
 router.get(
-    "/users/:id",
+    "/admin/users/:id",
     auth(UserRole.ADMIN),
     UserController.getUserById
 )

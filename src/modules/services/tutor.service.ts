@@ -7,6 +7,19 @@ interface ApplyAsTutorPayload {
     experience: number;
     categoryId: string;
 }
+interface UpdateTutorProfilePayload {
+    bio: string;
+    hourlyRate: number;
+    experience: number;
+    categoryId: string;
+}
+
+interface UpdateTutorAvailabilityPayload {
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+    isAvailable: boolean;
+}
 
 const getTutors = async () => {
     return await prisma.tutorProfile.findMany({
@@ -104,6 +117,30 @@ const getTutorById = async (id: string) => {
     return tutor;
 }
 
+const updateTutorProfile = async (id: string, payload: UpdateTutorProfilePayload) => {
+    try {
+        return await prisma.tutorProfile.update({
+            where: { id },
+            data: payload
+        })
+    } catch (e: any) {
+        throw new Error(e.message);
+    }
+}
+
+const updateTutorAvailability = async (id: string, payload: UpdateTutorAvailabilityPayload) => {
+    try {
+        return await prisma.tutorAvailability.update({
+            where: { id },
+            data: payload
+        })
+    } catch (e: any) {
+        throw new Error(e.message);
+    }
+}
+
+
+
 const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
     const { userId, bio, hourlyRate, experience, categoryId } = payload;
 
@@ -166,5 +203,7 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
 export const TutorService = {
     getTutors,
     getTutorById,
-    applyAsTutor,
+    updateTutorProfile,
+    updateTutorAvailability,
+    applyAsTutor
 }
