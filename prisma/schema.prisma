@@ -12,3 +12,158 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+// Enums 
+
+enum Role {
+  STUDENT
+  TUTOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+
+model User {
+  id            String       @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          Role       @default(STUDENT)
+  status        UserStatus @default(ACTIVE)
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  
+  tutorProfile      TutorProfile?
+  bookingsAsStudent Booking[] @relation("studentBookings")
+  bookingsAsTutor   Booking[] @relation("tutorBookings")
+  reviewsGiven      Review[]  @relation("studentReviews")
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+
+
+model TutorProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  bio           String
+  hourlyRate    Float
+  experience    Int
+  averageRating Float   @default(0)
+  totalReviews  Int     @default(0)
+  categoryId    String
+  createdAt     DateTime @default(now())
+
+  user          User      @relation(fields: [userId], references: [id])
+  category      Category  @relation(fields: [categoryId], references: [id])
+  availability  TutorAvailability[]
+  reviews       Review[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  tutors TutorProfile[]
+}
+
+model TutorAvailability {
+  id          String   @id @default(cuid())
+  tutorId     String
+  dayOfWeek   Int      // 0 = Sunday, 6 = Saturday
+  startTime   String   // "10:00"
+  endTime     String   // "12:00"
+  isAvailable Boolean  @default(true)
+
+  tutor TutorProfile @relation(fields: [tutorId], references: [id])
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  studentId String
+  tutorId   String
+  date      DateTime
+  startTime String
+  endTime   String
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime @default(now())
+
+  student User @relation("studentBookings", fields: [studentId], references: [id])
+  tutor   User @relation("tutorBookings", fields: [tutorId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  studentId String
+  tutorId   String
+  rating    Int      // 1–5
+  comment   String
+  createdAt DateTime @default(now())
+
+  student User         @relation("studentReviews", fields: [studentId], references: [id])
+  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
+}
