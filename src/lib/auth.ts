@@ -1,19 +1,3 @@
-// import { betterAuth } from "better-auth";
-// import { prismaAdapter } from "better-auth/adapters/prisma";
-// import { prisma } from "./prisma";
-
-// export const auth = betterAuth({
-//     database: prismaAdapter(prisma, {
-//         provider: "postgresql",
-//     }),
-//     emailAndPassword: {
-//         enabled: true,
-//         autoSignIn: false,
-//         requireEmailVerification: true,
-//     },
-
-// });
-
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
@@ -36,18 +20,8 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.APP_URL!],
   user: {
     additionalFields: {
-      role: {
-        type: "string",
-        defaultValue: "USER",
-        required: false
-      },
       phone: {
         type: "string",
-        required: false
-      },
-      status: {
-        type: "string",
-        defaultValue: "ACTIVE",
         required: false
       }
     }
@@ -64,7 +38,7 @@ export const auth = betterAuth({
       try {
         const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
         const info = await transporter.sendMail({
-            from: '"Prisma Blog" <prismablog@ph.com>',
+            from: '"Education Bridge" <noreply@educationbridge.com>',
             to: user.email,
             subject: "Please verify your email!",
             html: `
@@ -154,7 +128,7 @@ export const auth = betterAuth({
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <h1>Prisma Blog</h1>
+      <h1>Education Bridge</h1>
     </div>
 
     <!-- Content -->
@@ -162,12 +136,12 @@ export const auth = betterAuth({
       <h2>Verify Your Email Address</h2>
       <p>
         Hello ${user.name} <br /><br />
-        Thank you for registering on <strong>Prisma Blog</strong>.
+        Thank you for registering on <strong>Education Bridge</strong>.
         Please confirm your email address to activate your account.
       </p>
 
       <div class="button-wrapper">
-        <a href="${verificationUrl}" class="verify-button">
+        <a href="${url}" class="verify-button">
           Verify Email
         </a>
       </div>
@@ -187,13 +161,13 @@ export const auth = betterAuth({
 
       <p>
         Regards, <br />
-        <strong>Prisma Blog Team</strong>
+        <strong>Education Bridge Team</strong>
       </p>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-      © 2025 Prisma Blog. All rights reserved.
+      © 2026 Education Bridge. All rights reserved.
     </div>
   </div>
 </body>
@@ -218,8 +192,3 @@ export const auth = betterAuth({
     },
   },
 });
-
-
-//
-// GOOGLE_CLIENT_ID
-// GOOGLE_CLIENT_SECRET

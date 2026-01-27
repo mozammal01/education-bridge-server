@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from '../lib/auth'
+import { prisma } from '../lib/prisma'
 
 export enum UserRole {
-    USER = "USER",
+    STUDENT = "STUDENT",
+    TUTOR = "TUTOR",
     ADMIN = "ADMIN"
 }
 
@@ -43,11 +45,17 @@ const auth = (...roles: UserRole[]) => {
                 })
             }
 
+            // Fetch user from database to get role
+            const dbUser = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { role: true }
+            })
+
             req.user = {
                 id: session.user.id,
                 email: session.user.email,
                 name: session.user.name,
-                role: session.user.role as UserRole,
+                role: dbUser?.role || UserRole.STUDENT,
                 emailVerified: session.user.emailVerified
             }
 
