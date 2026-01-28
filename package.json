@@ -13,7 +13,7 @@
     "seed:admin": "npx tsx src/scripts/seedAdmin.ts",
     "postinstall": "prisma generate",
     "build": "prisma generate && tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/src/server.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
