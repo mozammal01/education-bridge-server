@@ -11,14 +11,19 @@ router.post(
 )
 router.get(
     "/bookings",
-    auth(UserRole.STUDENT,UserRole.TUTOR, UserRole.ADMIN),
+    auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),
     BookingsController.getBookings
 )
 router.get(
     "/bookings/:id",
-    auth(UserRole.STUDENT,UserRole.TUTOR,UserRole.ADMIN),
+    auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),
     BookingsController.getBookingsById
 )
 
+router.patch(
+    "/bookings/:id/status",
+    auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),
+    BookingsController.updateBookingStatus
+)
 
 export const bookingsRouter: Router = router;

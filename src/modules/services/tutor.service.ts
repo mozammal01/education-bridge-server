@@ -18,15 +18,12 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         limit = 10
     } = filters;
 
-    // Build where clause
     const where: Prisma.TutorProfileWhereInput = {};
 
-    // Filter by category
     if (categoryId) {
         where.categoryId = categoryId;
     }
 
-    // Filter by rating range
     if (minRating !== undefined || maxRating !== undefined) {
         where.averageRating = {};
         if (minRating !== undefined) {
@@ -37,7 +34,6 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         }
     }
 
-    // Filter by price range
     if (minPrice !== undefined || maxPrice !== undefined) {
         where.hourlyRate = {};
         if (minPrice !== undefined) {
@@ -48,7 +44,6 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         }
     }
 
-    // Search by tutor name
     if (search) {
         where.user = {
             name: {
@@ -58,7 +53,6 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         };
     }
 
-    // Build orderBy clause
     let orderBy: Prisma.TutorProfileOrderByWithRelationInput = {};
     
     switch (sortBy) {
@@ -75,13 +69,10 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
             orderBy = { createdAt: sortOrder };
     }
 
-    // Calculate pagination
     const skip = (page - 1) * limit;
 
-    // Get total count for pagination meta
     const total = await prisma.tutorProfile.count({ where });
 
-    // Get filtered tutors
     const tutors = await prisma.tutorProfile.findMany({
         where,
         orderBy,
@@ -117,7 +108,6 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
 }
 
 const getTutorById = async (id: string) => {
-    // First try to find by tutorProfile.id, then by userId
     let tutor = await prisma.tutorProfile.findUnique({
         where: { id },
         include: {
@@ -151,7 +141,6 @@ const getTutorById = async (id: string) => {
         }
     });
 
-    // If not found by tutorProfile.id, try finding by userId
     if (!tutor) {
         tutor = await prisma.tutorProfile.findUnique({
             where: { userId: id },
@@ -217,7 +206,6 @@ const updateTutorAvailability = async (id: string, payload: UpdateTutorAvailabil
 const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
     const { userId, bio, hourlyRate, experience, categoryId } = payload;
 
-    // Check if user already has a tutor profile
     const existingProfile = await prisma.tutorProfile.findUnique({
         where: { userId }
     });
@@ -226,7 +214,6 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
         throw new Error("You already have a tutor profile!");
     }
 
-    // Check if category exists
     const category = await prisma.category.findUnique({
         where: { id: categoryId }
     });
@@ -235,9 +222,7 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
         throw new Error("Category not found!");
     }
 
-    // Create tutor profile and update user role in a transaction
     const result = await prisma.$transaction(async (tx) => {
-        // Create the tutor profile
         const tutorProfile = await tx.tutorProfile.create({
             data: {
                 userId,
@@ -258,7 +243,6 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
             }
         });
 
-        // Update user role to TUTOR
         await tx.user.update({
             where: { id: userId },
             data: { role: "TUTOR" }

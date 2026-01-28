@@ -60,8 +60,37 @@ const getBookingsById = async (req: Request, res: Response) => {
     }
 }
 
+const updateBookingStatus = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body as { status: 'COMPLETED' | 'CANCELLED' };
+        const userId = req.user?.id as string;
+        const userRole = req.user?.role as UserRole;
+
+        if (!status || !['COMPLETED', 'CANCELLED'].includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid status. Must be 'COMPLETED' or 'CANCELLED'"
+            });
+        }
+
+        const result = await BookingsService.updateBookingStatus(id as string, userId, userRole, status);
+        res.status(200).json({
+            success: true,
+            message: `Booking ${status.toLowerCase()} successfully`,
+            data: result
+        });
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: e.message || "Failed to update booking status"
+        });
+    }
+}
+
 export const BookingsController = {
     createBooking,
     getBookings,
-    getBookingsById
+    getBookingsById,
+    updateBookingStatus
 }

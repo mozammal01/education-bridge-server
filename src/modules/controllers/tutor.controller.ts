@@ -5,7 +5,6 @@ import { OthersService } from "../services/others.service";
 
 const getTutors = async (req: Request, res: Response) => {
     try {
-        // Extract filter params from query string
         const {
             categoryId,
             minRating,
@@ -19,7 +18,6 @@ const getTutors = async (req: Request, res: Response) => {
             limit
         } = req.query;
 
-        // Build filter object with proper type conversion (only include defined values)
         const filters: Record<string, any> = {
             page: page ? parseInt(page as string) : 1,
             limit: limit ? parseInt(limit as string) : 10
@@ -126,7 +124,6 @@ const applyAsTutor = async (req: Request, res: Response) => {
 
         const { bio, hourlyRate, experience, categoryId } = req.body;
 
-        // Basic validation
         if (!bio || !hourlyRate || !experience || !categoryId) {
             return res.status(400).json({
                 success: false,

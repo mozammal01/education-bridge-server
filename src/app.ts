@@ -14,7 +14,7 @@ import { othersRouter } from "./modules/routes/others.routes";
 const app: Application = express();
 
 app.use(cors({
-  origin: process.env.APP_URL || "http://localhost:4000", // client side url
+  origin: process.env.APP_URL || "http://localhost:4000", 
   credentials: true
 }))
 
@@ -33,7 +33,7 @@ app.get("/api/auth/me", async (req, res) => {
       });
     }
 
-    // Get user with role from database
+    
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {

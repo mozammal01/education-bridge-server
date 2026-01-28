@@ -3,6 +3,38 @@ import { prisma } from "../../lib/prisma";
 
 
 const createTutorReview = async (studentId: string, tutorId: string, rating: number, comment: string) => {
+    const tutorProfile = await prisma.tutorProfile.findUnique({
+        where: { id: tutorId },
+        select: { userId: true }
+    });
+
+    if (!tutorProfile) {
+        throw new Error("Tutor not found");
+    }
+
+    const completedBooking = await prisma.booking.findFirst({
+        where: {
+            studentId: studentId,
+            tutorId: tutorProfile.userId,
+            status: 'COMPLETED'
+        }
+    });
+
+    if (!completedBooking) {
+        throw new Error("You can only review tutors after completing a session with them");
+    }
+
+    const existingReview = await prisma.review.findFirst({
+        where: {
+            studentId: studentId,
+            tutorId: tutorId
+        }
+    });
+
+    if (existingReview) {
+        throw new Error("You have already reviewed this tutor");
+    }
+
     const result = await prisma.$transaction(async (tx) => {
         const review = await tx.review.create({
             data: { studentId, tutorId, rating, comment }

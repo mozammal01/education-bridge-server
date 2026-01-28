@@ -6,7 +6,7 @@ import nodemailer from "nodemailer"
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Use true for port 465, false for port 587
+  secure: false,
   auth: {
     user: process.env.APP_USER,
     pass: process.env.APP_PASS,
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "postgresql", // or "mysql", "postgresql", ...etc
+    provider: "postgresql",
   }),
   trustedOrigins: [process.env.APP_URL!],
   user: {
