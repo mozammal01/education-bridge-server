@@ -41,3 +41,9 @@ export interface TutorFilterParams {
   page?: number;
   limit?: number;
 }
+
+export interface UpdateStudentProfilePayload {
+  name?: string;
+  email?: string;
+  image?: string;
+}

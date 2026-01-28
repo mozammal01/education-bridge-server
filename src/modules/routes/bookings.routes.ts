@@ -11,12 +11,12 @@ router.post(
 )
 router.get(
     "/bookings",
-    auth(UserRole.STUDENT, UserRole.ADMIN),
+    auth(UserRole.STUDENT,UserRole.TUTOR, UserRole.ADMIN),
     BookingsController.getBookings
 )
 router.get(
     "/bookings/:id",
-    auth(UserRole.STUDENT, UserRole.ADMIN),
+    auth(UserRole.STUDENT,UserRole.TUTOR,UserRole.ADMIN),
     BookingsController.getBookingsById
 )
 
