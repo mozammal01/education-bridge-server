@@ -17,12 +17,19 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  baseURL: process.env.SERVER_URL || "http://localhost:5000",
   trustedOrigins: [process.env.APP_URL!],
   user: {
     additionalFields: {
       phone: {
         type: "string",
         required: false
+      },
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "STUDENT",
+        input: true 
       }
     }
   },
@@ -31,17 +38,33 @@ export const auth = betterAuth({
     autoSignIn: false,
     requireEmailVerification: true
   },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5 // 5 minutes
+    }
+  },
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+  },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    callbackURL: process.env.APP_URL || "http://localhost:3000",
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
         const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
         const info = await transporter.sendMail({
-            from: '"Education Bridge" <noreply@educationbridge.com>',
-            to: user.email,
-            subject: "Please verify your email!",
-            html: `
+          from: '"Education Bridge" <noreply@educationbridge.com>',
+          to: user.email,
+          subject: "Please verify your email!",
+          html: `
           
 <!DOCTYPE html>
     <html lang="en">
@@ -189,6 +212,9 @@ export const auth = betterAuth({
       accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      redirectURI: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback/google`,
+      callbackURL: process.env.APP_URL || "http://localhost:3000",
     },
   },
+
 });

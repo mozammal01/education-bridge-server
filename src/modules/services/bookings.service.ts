@@ -2,16 +2,33 @@ import { prisma } from "../../lib/prisma";
 import { UserRole } from "../../middlewares/auth";
 
 
-const createBooking = async (studentId: string, tutorId: string, date: Date, startTime: string, endTime: string) => {
+const createBooking = async (studentId: string, tutorId: string, date: string, startTime: string, endTime: string) => {
+  // Convert date string to Date object
+  const bookingDate = new Date(date);
+
+  // Validate the date
+  if (isNaN(bookingDate.getTime())) {
+    throw new Error("Invalid date format");
+  }
+
+  // Check if tutor exists
+  const tutor = await prisma.user.findUnique({
+    where: { id: tutorId, role: "TUTOR" }
+  });
+
+  if (!tutor) {
+    throw new Error("Tutor not found");
+  }
+
   return await prisma.booking.create({
     data: {
       studentId,
       tutorId,
-      date,
+      date: bookingDate,
       startTime,
       endTime
     }
-  })
+  });
 }
 
 const getBookings = async (userId: string, userRole: UserRole) => {

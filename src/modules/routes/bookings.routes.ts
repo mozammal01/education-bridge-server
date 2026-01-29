@@ -9,6 +9,12 @@ router.post(
     auth(UserRole.STUDENT),
     BookingsController.createBooking
 )
+
+// router.post(
+//     "/bookings/:id",
+//     auth(UserRole.STUDENT),
+//     BookingsController.cancelBooking
+// )
 router.get(
     "/bookings",
     auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),

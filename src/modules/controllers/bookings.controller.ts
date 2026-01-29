@@ -5,19 +5,29 @@ import { UserRole } from "../../middlewares/auth";
 
 const createBooking = async (req: Request, res: Response) => {
     try {
-        const { userId, tutorId, date, startTime, endTime } = req.body
-        const result = await BookingsService.createBooking(userId, tutorId, date, startTime, endTime)
-        res.status(200).json({
+        const userId = req.user?.id as string;
+        const { tutorId, date, startTime, endTime } = req.body;
+
+        // Validate required fields
+        if (!tutorId || !date || !startTime || !endTime) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: tutorId, date, startTime, endTime"
+            });
+        }
+
+        const result = await BookingsService.createBooking(userId, tutorId, date, startTime, endTime);
+        res.status(201).json({
             success: true,
             message: "Booking created successfully",
             data: result
-        })
+        });
     } catch (e: any) {
+        console.error("Booking error:", e.message);
         res.status(400).json({
             success: false,
-            message: "Booking created failed",
-            error: e.message
-        })
+            message: e.message || "Booking creation failed"
+        });
     }
 }
 
