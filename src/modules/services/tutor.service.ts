@@ -4,9 +4,10 @@ import { Prisma } from "../../../generated/prisma/client";
 
 
 
-const getTutors = async (filters: TutorFilterParams = {}) => {
+const getTutors = async (filters: TutorFilterParams & { categorySlug?: string } = {}) => {
     const {
         categoryId,
+        categorySlug,
         minRating,
         maxRating,
         minPrice,
@@ -15,13 +16,19 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         sortBy = 'createdAt',
         sortOrder = 'desc',
         page = 1,
-        limit = 10
+        limit = 100
     } = filters;
 
     const where: Prisma.TutorProfileWhereInput = {};
 
     if (categoryId) {
         where.categoryId = categoryId;
+    }
+
+    if (categorySlug) {
+        where.category = {
+            slug: categorySlug
+        };
     }
 
     if (minRating !== undefined || maxRating !== undefined) {
@@ -34,18 +41,25 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
         }
     }
 
+    where.user = {
+        status: "ACTIVE"
+    };
+
+    where.hourlyRate = {
+        gt: 0
+    };
+
     if (minPrice !== undefined || maxPrice !== undefined) {
-        where.hourlyRate = {};
-        if (minPrice !== undefined) {
-            where.hourlyRate.gte = minPrice;
-        }
-        if (maxPrice !== undefined) {
-            where.hourlyRate.lte = maxPrice;
-        }
+        where.hourlyRate = {
+            ...where.hourlyRate,
+            ...(minPrice !== undefined && { gte: minPrice }),
+            ...(maxPrice !== undefined && { lte: maxPrice })
+        };
     }
 
     if (search) {
         where.user = {
+            ...where.user,
             name: {
                 contains: search,
                 mode: 'insensitive'
@@ -54,7 +68,7 @@ const getTutors = async (filters: TutorFilterParams = {}) => {
     }
 
     let orderBy: Prisma.TutorProfileOrderByWithRelationInput = {};
-    
+
     switch (sortBy) {
         case 'rating':
             orderBy = { averageRating: sortOrder };
@@ -179,10 +193,36 @@ const getTutorById = async (id: string) => {
     return tutor;
 }
 
-const updateTutorProfile = async (id: string, payload: UpdateTutorProfilePayload) => {
+const getMyTutorProfile = async (userId: string) => {
+    const profile = await prisma.tutorProfile.findUnique({
+        where: { userId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true
+                }
+            },
+            category: {
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true
+                }
+            },
+            availability: true
+        }
+    });
+
+    return profile;
+}
+
+const updateTutorProfile = async (userId: string, payload: UpdateTutorProfilePayload) => {
     try {
         return await prisma.tutorProfile.update({
-            where: { id },
+            where: { userId },
             data: payload
         })
     } catch (e: any) {
@@ -190,12 +230,53 @@ const updateTutorProfile = async (id: string, payload: UpdateTutorProfilePayload
     }
 }
 
-const updateTutorAvailability = async (id: string, payload: UpdateTutorAvailabilityPayload) => {
+const updateTutorAvailability = async (userId: string, availabilityData: { dayOfWeek: number; startTime: string; endTime: string; isAvailable: boolean }[]) => {
     try {
-        return await prisma.tutorAvailability.update({
-            where: { id },
-            data: payload
-        })
+        const tutorProfile = await prisma.tutorProfile.findUnique({
+            where: { userId }
+        });
+
+        if (!tutorProfile) {
+            throw new Error("Tutor profile not found");
+        }
+
+        await prisma.tutorAvailability.deleteMany({
+            where: { tutorId: tutorProfile.id }
+        });
+
+        if (availabilityData.length > 0) {
+            await prisma.tutorAvailability.createMany({
+                data: availabilityData.map(slot => ({
+                    tutorId: tutorProfile.id,
+                    dayOfWeek: slot.dayOfWeek,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    isAvailable: slot.isAvailable
+                }))
+            });
+        }
+
+        return await prisma.tutorAvailability.findMany({
+            where: { tutorId: tutorProfile.id }
+        });
+    } catch (e: any) {
+        throw new Error(e.message);
+    }
+}
+
+const getTutorAvailability = async (userId: string) => {
+    try {
+        const tutorProfile = await prisma.tutorProfile.findUnique({
+            where: { userId }
+        });
+
+        if (!tutorProfile) {
+            return [];
+        }
+
+        return await prisma.tutorAvailability.findMany({
+            where: { tutorId: tutorProfile.id }
+        });
     } catch (e: any) {
         throw new Error(e.message);
     }
@@ -260,7 +341,9 @@ const applyAsTutor = async (payload: ApplyAsTutorPayload) => {
 export const TutorService = {
     getTutors,
     getTutorById,
+    getMyTutorProfile,
     updateTutorProfile,
     updateTutorAvailability,
+    getTutorAvailability,
     applyAsTutor
 }

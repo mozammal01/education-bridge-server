@@ -13,8 +13,10 @@ router.get(
     TutorController.getTutorById
 )
 
+router.get("/tutor/profile", auth(UserRole.TUTOR), TutorController.getMyTutorProfile)
 router.put("/tutor/profile", auth(UserRole.TUTOR), TutorController.updateTutorProfile)
 
+router.get("/tutor/availability", auth(UserRole.TUTOR), TutorController.getTutorAvailability)
 router.put("/tutor/availability", auth(UserRole.TUTOR), TutorController.updateTutorAvailability)
 
 router.post(

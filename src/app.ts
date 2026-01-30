@@ -1,5 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors";
+import path from "path";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { notFound } from "./middlewares/notFound";
@@ -10,6 +11,7 @@ import { categoriesRouter } from "./modules/routes/categories.routes";
 import { bookingsRouter } from "./modules/routes/bookings.routes";
 import { usersRouter } from "./modules/routes/users.routes";
 import { othersRouter } from "./modules/routes/others.routes";
+import { reviewsRouter } from "./modules/routes/reviews.routes";
 
 const app: Application = express();
 
@@ -19,6 +21,9 @@ app.use(cors({
 }))
 
 app.use(express.json());
+
+// Serve uploaded files as static assets
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/api/auth/me", async (req, res) => {
   try {
@@ -96,6 +101,7 @@ app.use("/api", usersRouter);
 app.use("/api", tutorRouter);
 app.use("/api", categoriesRouter);
 app.use("/api", bookingsRouter);
+app.use("/api", reviewsRouter);
 app.use("/api", othersRouter);
 
 app.get("/", (req, res) => {

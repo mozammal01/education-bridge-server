@@ -7,6 +7,7 @@ const getTutors = async (req: Request, res: Response) => {
     try {
         const {
             categoryId,
+            category,
             minRating,
             maxRating,
             minPrice,
@@ -20,10 +21,11 @@ const getTutors = async (req: Request, res: Response) => {
 
         const filters: Record<string, any> = {
             page: page ? parseInt(page as string) : 1,
-            limit: limit ? parseInt(limit as string) : 10
+            limit: limit ? parseInt(limit as string) : 100
         };
 
         if (categoryId) filters.categoryId = categoryId as string;
+        if (category) filters.categorySlug = category as string;
         if (minRating) filters.minRating = parseFloat(minRating as string);
         if (maxRating) filters.maxRating = parseFloat(maxRating as string);
         if (minPrice) filters.minPrice = parseFloat(minPrice as string);
@@ -52,7 +54,6 @@ const getTutorById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
         const result = await TutorService.getTutorById(id as string)
-        console.log(result)
 
         if (!result) {
             return res.status(404).json({
@@ -75,10 +76,27 @@ const getTutorById = async (req: Request, res: Response) => {
     }
 }
 
+const getMyTutorProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id as string;
+        const result = await TutorService.getMyTutorProfile(userId);
+        res.status(200).json({
+            success: true,
+            message: "Tutor profile fetched successfully",
+            data: result
+        });
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: e.message || "Failed to fetch tutor profile"
+        });
+    }
+}
+
 const updateTutorProfile = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params
-        const result = await TutorService.updateTutorProfile(id as string, req.body)
+        const userId = req.user?.id;
+        const result = await TutorService.updateTutorProfile(userId as string, req.body)
         res.status(200).json({
             success: true,
             message: "Tutor profile updated successfully",
@@ -95,8 +113,17 @@ const updateTutorProfile = async (req: Request, res: Response) => {
 
 const updateTutorAvailability = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params
-        const result = await TutorService.updateTutorAvailability(id as string, req.body)
+        const userId = req.user?.id as string;
+        const { availability } = req.body;
+
+        if (!Array.isArray(availability)) {
+            return res.status(400).json({
+                success: false,
+                message: "Availability must be an array"
+            });
+        }
+
+        const result = await TutorService.updateTutorAvailability(userId, availability);
         res.status(200).json({
             success: true,
             message: "Tutor availability updated successfully",
@@ -105,8 +132,24 @@ const updateTutorAvailability = async (req: Request, res: Response) => {
     } catch (e: any) {
         res.status(400).json({
             success: false,
-            message: "Tutor availability updated failed",
-            error: e.message
+            message: e.message || "Tutor availability update failed"
+        })
+    }
+}
+
+const getTutorAvailability = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id as string;
+        const result = await TutorService.getTutorAvailability(userId);
+        res.status(200).json({
+            success: true,
+            message: "Tutor availability fetched successfully",
+            data: result
+        })
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: e.message || "Failed to fetch availability"
         })
     }
 }
@@ -157,6 +200,8 @@ export const TutorController = {
     getTutors,
     getTutorById,
     applyAsTutor,
+    getMyTutorProfile,
     updateTutorProfile,
-    updateTutorAvailability
+    updateTutorAvailability,
+    getTutorAvailability
 }

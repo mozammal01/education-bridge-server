@@ -1,7 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { auth } from "../lib/auth";
 
-// Categories Data
 const CATEGORIES = [
   { name: "Mathematics", slug: "mathematics" },
   { name: "Science", slug: "science" },
@@ -13,7 +12,6 @@ const CATEGORIES = [
   { name: "Test Prep", slug: "test-prep" },
 ];
 
-// Users Data (Tutors)
 const TUTOR_USERS = [
   { name: "Dr. Ayesha Rahman", email: "ayesha@skillbridge.com", password: "password123" },
   { name: "Mohammad Karim", email: "karim@skillbridge.com", password: "password123" },
@@ -29,13 +27,11 @@ const TUTOR_USERS = [
   { name: "Jubayer Ahmed", email: "jubayer@skillbridge.com", password: "password123" },
 ];
 
-// Users Data (Students)
 const STUDENT_USERS = [
   { name: "Sadia Khan", email: "sadia@example.com", password: "password123" },
   { name: "Imran Hossain", email: "imran@example.com", password: "password123" },
 ];
 
-// Tutor Profiles Data (index matches TUTOR_USERS index)
 const TUTOR_PROFILES = [
   { bio: "Ph.D. in Mathematics with 12+ years of teaching experience. University lecturer specializing in making complex mathematical concepts simple.", hourlyRate: 800, experience: 12, categorySlug: "mathematics" },
   { bio: "Senior software engineer with 9 years of industry experience. Full-stack & mobile development expert.", hourlyRate: 1200, experience: 9, categorySlug: "programming" },
@@ -51,7 +47,6 @@ const TUTOR_PROFILES = [
   { bio: "Digital Marketing expert. Google & Meta Certified with 5 years agency experience.", hourlyRate: 900, experience: 5, categorySlug: "business" },
 ];
 
-// Availability Data (tutor index -> availability slots)
 const TUTOR_AVAILABILITY: { [key: number]: { dayOfWeek: number; startTime: string; endTime: string }[] } = {
   0: [
     { dayOfWeek: 0, startTime: "10:00", endTime: "12:00" },
@@ -155,7 +150,6 @@ const TUTOR_AVAILABILITY: { [key: number]: { dayOfWeek: number; startTime: strin
 
 async function createUser(userData: { name: string; email: string; password: string }, role: "TUTOR" | "STUDENT") {
   try {
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { email: userData.email }
     });
@@ -165,7 +159,6 @@ async function createUser(userData: { name: string; email: string; password: str
       return existingUser;
     }
 
-    // Create user with better-auth
     const createdUser = await auth.api.signUpEmail({
       body: {
         name: userData.name,
@@ -175,7 +168,6 @@ async function createUser(userData: { name: string; email: string; password: str
     });
 
     if (createdUser) {
-      // Update role and verify email
       const updatedUser = await prisma.user.update({
         where: { email: userData.email },
         data: {
@@ -193,11 +185,10 @@ async function createUser(userData: { name: string; email: string; password: str
 }
 
 async function seed() {
-  console.log("🌱 Starting seed...\n");
+  console.log("Starting seed...\n");
 
   try {
-    // 1. Seed Categories
-    console.log("📁 Seeding Categories...");
+    console.log("Seeding Categories...");
     for (const category of CATEGORIES) {
       const existing = await prisma.category.findUnique({
         where: { slug: category.slug }
@@ -210,28 +201,25 @@ async function seed() {
         console.log(`  Category ${category.name} already exists, skipping...`);
       }
     }
-    console.log("✅ Categories seeded!\n");
+    console.log("Categories seeded!\n");
 
-    // 2. Seed Tutor Users
-    console.log("👨‍🏫 Seeding Tutor Users...");
+    console.log("Seeding Tutor Users...");
     const createdTutors: any[] = [];
     for (const tutorData of TUTOR_USERS) {
       const user = await createUser(tutorData, "TUTOR");
       createdTutors.push(user);
     }
-    console.log("✅ Tutor Users seeded!\n");
+    console.log("Tutor Users seeded!\n");
 
-    // 3. Seed Student Users
-    console.log("👨‍🎓 Seeding Student Users...");
+    console.log("Seeding Student Users...");
     const createdStudents: any[] = [];
     for (const studentData of STUDENT_USERS) {
       const user = await createUser(studentData, "STUDENT");
       createdStudents.push(user);
     }
-    console.log("✅ Student Users seeded!\n");
+    console.log("Student Users seeded!\n");
 
-    // 4. Seed Tutor Profiles
-    console.log("📋 Seeding Tutor Profiles...");
+    console.log("Seeding Tutor Profiles...");
     const createdProfiles: any[] = [];
     for (let i = 0; i < TUTOR_PROFILES.length; i++) {
       const tutor = createdTutors[i];
@@ -248,7 +236,6 @@ async function seed() {
         continue;
       }
 
-      // Check if profile exists
       const existingProfile = await prisma.tutorProfile.findUnique({
         where: { userId: tutor.id }
       });
@@ -271,10 +258,9 @@ async function seed() {
       createdProfiles.push(profile);
       console.log(`  Created profile for: ${tutor.name}`);
     }
-    console.log("✅ Tutor Profiles seeded!\n");
+    console.log("Tutor Profiles seeded!\n");
 
-    // 5. Seed Tutor Availability
-    console.log("📅 Seeding Tutor Availability...");
+    console.log("Seeding Tutor Availability...");
     for (let i = 0; i < createdProfiles.length; i++) {
       const profile = createdProfiles[i];
       if (!profile) continue;
@@ -282,7 +268,6 @@ async function seed() {
       const availabilitySlots = TUTOR_AVAILABILITY[i];
       if (!availabilitySlots) continue;
 
-      // Check if availability exists
       const existingAvailability = await prisma.tutorAvailability.findFirst({
         where: { tutorId: profile.id }
       });
@@ -305,10 +290,9 @@ async function seed() {
       }
       console.log(`  Created availability for tutor ${i + 1}`);
     }
-    console.log("✅ Tutor Availability seeded!\n");
+    console.log("Tutor Availability seeded!\n");
 
-    // 6. Seed some sample Bookings
-    console.log("📆 Seeding Sample Bookings...");
+    console.log("Seeding Sample Bookings...");
     if (createdStudents[0] && createdTutors[0]) {
       const existingBooking = await prisma.booking.findFirst({
         where: {
@@ -318,11 +302,10 @@ async function seed() {
       });
 
       if (!existingBooking) {
-        // Create a few sample bookings
         const bookings = [
           {
             studentId: createdStudents[0].id,
-            tutorId: createdTutors[0].id, // User ID, not TutorProfile ID
+            tutorId: createdTutors[0].id,
             date: new Date("2026-02-01"),
             startTime: "10:00",
             endTime: "11:00",
@@ -356,10 +339,9 @@ async function seed() {
         console.log("  Sample bookings already exist, skipping...");
       }
     }
-    console.log("✅ Sample Bookings seeded!\n");
+    console.log("Sample Bookings seeded!\n");
 
-    // 7. Seed some sample Reviews
-    console.log("⭐ Seeding Sample Reviews...");
+    console.log("Seeding Sample Reviews...");
     if (createdStudents[0] && createdProfiles[0]) {
       const existingReview = await prisma.review.findFirst({
         where: {
@@ -372,7 +354,7 @@ async function seed() {
         const reviews = [
           {
             studentId: createdStudents[0].id,
-            tutorId: createdProfiles[0].id, // TutorProfile ID
+            tutorId: createdProfiles[0].id,
             rating: 5,
             comment: "Excellent teacher! Explained complex concepts so clearly."
           },
@@ -394,7 +376,6 @@ async function seed() {
           if (review.studentId && review.tutorId) {
             await prisma.review.create({ data: review });
 
-            // Update tutor's average rating
             const tutorReviews = await prisma.review.findMany({
               where: { tutorId: review.tutorId }
             });
@@ -408,19 +389,19 @@ async function seed() {
               }
             });
 
-            console.log(`  Created review for tutor profile`);
+            console.log(`Created review for tutor profile`);
           }
         }
       } else {
         console.log("  Sample reviews already exist, skipping...");
       }
     }
-    console.log("✅ Sample Reviews seeded!\n");
+    console.log("Sample Reviews seeded!\n");
 
-    console.log("🎉 Seed completed successfully!");
+    console.log("Seed completed successfully!");
 
   } catch (error) {
-    console.error("❌ Seed failed:", error);
+    console.error("Seed failed:", error);
     throw error;
   } finally {
     await prisma.$disconnect();

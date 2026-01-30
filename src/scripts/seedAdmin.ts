@@ -4,16 +4,15 @@ import { auth } from "../lib/auth";
 
 async function seedAdmin() {
     try {
-        console.log("***** Admin Seeding Started....")
+        console.log("Admin Seeding Started....")
         const adminData = {
             name: "Admin",
             email: "admin@gmail.com",
             role: UserRole.ADMIN,
             password: "admin123"
         }
-        console.log("***** Checking Admin Exist or not")
+        console.log("Checking Admin Exist or not")
 
-        // User exist check
         const existingUser = await prisma.user.findUnique({
             where: {
                 email: adminData.email
@@ -24,7 +23,6 @@ async function seedAdmin() {
             throw new Error("User already exists!!");
         }
 
-        // Use better-auth's server-side API to create user
         const createdUser = await auth.api.signUpEmail({
             body: {
                 name: adminData.name,
@@ -37,7 +35,6 @@ async function seedAdmin() {
 
         if (createdUser) {
             console.log("Admin created successfully")
-            // Update role and email verification status
             await prisma.user.update({
                 where: {
                     email: adminData.email

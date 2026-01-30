@@ -1,17 +1,13 @@
 import { prisma } from "../../lib/prisma";
 import { UserRole } from "../../middlewares/auth";
 
-
 const createBooking = async (studentId: string, tutorId: string, date: string, startTime: string, endTime: string) => {
-  // Convert date string to Date object
   const bookingDate = new Date(date);
 
-  // Validate the date
   if (isNaN(bookingDate.getTime())) {
     throw new Error("Invalid date format");
   }
 
-  // Check if tutor exists
   const tutor = await prisma.user.findUnique({
     where: { id: tutorId, role: "TUTOR" }
   });
@@ -32,8 +28,28 @@ const createBooking = async (studentId: string, tutorId: string, date: string, s
 }
 
 const getBookings = async (userId: string, userRole: UserRole) => {
+  const includeData = {
+    student: {
+      select: { id: true, name: true, email: true, image: true }
+    },
+    tutor: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        tutorProfile: {
+          select: { id: true, hourlyRate: true }
+        }
+      }
+    }
+  };
+
   if (userRole === UserRole.ADMIN) {
-    return await prisma.booking.findMany()
+    return await prisma.booking.findMany({
+      include: includeData,
+      orderBy: { createdAt: 'desc' }
+    });
   } else {
     return await prisma.booking.findMany({
       where: {
@@ -41,8 +57,10 @@ const getBookings = async (userId: string, userRole: UserRole) => {
           { studentId: userId },
           { tutorId: userId }
         ]
-      }
-    })
+      },
+      include: includeData,
+      orderBy: { createdAt: 'desc' }
+    });
   }
 }
 

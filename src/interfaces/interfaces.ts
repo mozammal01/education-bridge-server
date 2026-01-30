@@ -25,6 +25,7 @@ export interface UpdateTutorAvailabilityPayload {
 export interface UpdateUserPayload {
   name?: string;
   email?: string;
+  phone?: string;
   role?: Role;
   status?: UserStatus;
 }

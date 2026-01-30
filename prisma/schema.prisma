@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum Role {
   STUDENT
   TUTOR
@@ -25,24 +24,23 @@ enum BookingStatus {
   CANCELLED
 }
 
-
 model User {
-  id            String       @id @default(uuid())
-  email         String    @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
   name          String?
   role          Role       @default(STUDENT)
   status        UserStatus @default(ACTIVE)
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean    @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   sessions      Session[]
   accounts      Account[]
-  
+
   tutorProfile      TutorProfile?
-  bookingsAsStudent Booking[] @relation("studentBookings")
-  bookingsAsTutor   Booking[] @relation("tutorBookings")
-  reviewsGiven      Review[]  @relation("studentReviews")
+  bookingsAsStudent Booking[]     @relation("studentBookings")
+  bookingsAsTutor   Booking[]     @relation("tutorBookings")
+  reviewsGiven      Review[]      @relation("studentReviews")
 
   @@map("user")
 }
@@ -95,23 +93,25 @@ model Verification {
   @@map("verification")
 }
 
-
-
 model TutorProfile {
   id            String   @id @default(cuid())
   userId        String   @unique
-  bio           String
-  hourlyRate    Float
-  experience    Int
-  averageRating Float   @default(0)
-  totalReviews  Int     @default(0)
-  categoryId    String
+  bio           String   @default("")
+  headline      String?
+  education     String?
+  hourlyRate    Float    @default(0)
+  experience    Int      @default(0)
+  subjects      String[] @default([])
+  languages     String[] @default([])
+  averageRating Float    @default(0)
+  totalReviews  Int      @default(0)
+  categoryId    String?
   createdAt     DateTime @default(now())
 
-  user          User      @relation(fields: [userId], references: [id])
-  category      Category  @relation(fields: [categoryId], references: [id])
-  availability  TutorAvailability[]
-  reviews       Review[]
+  user         User                @relation(fields: [userId], references: [id])
+  category     Category?           @relation(fields: [categoryId], references: [id])
+  availability TutorAvailability[]
+  reviews      Review[]
 }
 
 model Category {
@@ -124,25 +124,25 @@ model Category {
 }
 
 model TutorAvailability {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   tutorId     String
-  dayOfWeek   Int      
-  startTime   String   
-  endTime     String   
-  isAvailable Boolean  @default(true)
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  isAvailable Boolean @default(true)
 
   tutor TutorProfile @relation(fields: [tutorId], references: [id])
 }
 
 model Booking {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   studentId String
   tutorId   String
   date      DateTime
   startTime String
   endTime   String
   status    BookingStatus @default(CONFIRMED)
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
 
   student User @relation("studentBookings", fields: [studentId], references: [id])
   tutor   User @relation("tutorBookings", fields: [tutorId], references: [id])
@@ -152,7 +152,7 @@ model Review {
   id        String   @id @default(cuid())
   studentId String
   tutorId   String
-  rating    Int      
+  rating    Int
   comment   String
   createdAt DateTime @default(now())
 
