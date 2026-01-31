@@ -18,7 +18,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   baseURL: process.env.SERVER_URL || "http://localhost:5000",
-  trustedOrigins: [process.env.APP_URL!],
+  trustedOrigins: [process.env.APP_URL || "https://education-bridge-client.vercel.app"],
   user: {
     additionalFields: {
       phone: {
@@ -68,7 +68,7 @@ export const auth = betterAuth({
   },
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     },
     crossSubDomainCookies: {
