@@ -41,6 +41,7 @@
   },
   "include": [
     "src/**/*",
+    "api/**/*",
     "generated/prisma/**/*"
   ],
   "exclude": [
