@@ -37,12 +37,13 @@ const auth = (...roles: UserRole[]) => {
                 })
             }
 
-            if (!session.user.emailVerified) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Email verification required. Please verify your email!"
-                })
-            }
+            // Email verification disabled
+            // if (!session.user.emailVerified) {
+            //     return res.status(403).json({
+            //         success: false,
+            //         message: "Email verification required. Please verify your email!"
+            //     })
+            // }
 
             const dbUser = await prisma.user.findUnique({
                 where: { id: session.user.id },

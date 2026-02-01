@@ -1,6 +1,6 @@
 import { ApplyAsTutorPayload, TutorFilterParams, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces";
 import { prisma } from "../../lib/prisma";
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "@prisma/client";
 
 
 
@@ -221,11 +221,25 @@ const getMyTutorProfile = async (userId: string) => {
 
 const updateTutorProfile = async (userId: string, payload: UpdateTutorProfilePayload) => {
     try {
+        // Filter out undefined values
+        const data: any = {};
+        if (payload.bio !== undefined) data.bio = payload.bio;
+        if (payload.headline !== undefined) data.headline = payload.headline;
+        if (payload.education !== undefined) data.education = payload.education;
+        if (payload.hourlyRate !== undefined) data.hourlyRate = payload.hourlyRate;
+        if (payload.experience !== undefined) data.experience = payload.experience;
+        if (payload.subjects !== undefined) data.subjects = payload.subjects;
+        if (payload.languages !== undefined) data.languages = payload.languages;
+        if (payload.categoryId !== undefined && payload.categoryId !== "") {
+            data.categoryId = payload.categoryId;
+        }
+
         return await prisma.tutorProfile.update({
             where: { userId },
-            data: payload
+            data
         })
     } catch (e: any) {
+        console.error("Update tutor profile error:", e);
         throw new Error(e.message);
     }
 }

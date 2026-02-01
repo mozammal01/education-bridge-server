@@ -96,16 +96,27 @@ const getMyTutorProfile = async (req: Request, res: Response) => {
 const updateTutorProfile = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const result = await TutorService.updateTutorProfile(userId as string, req.body)
+        console.log("Update tutor profile - userId:", userId);
+        console.log("Update tutor profile - body:", req.body);
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            });
+        }
+
+        const result = await TutorService.updateTutorProfile(userId, req.body)
         res.status(200).json({
             success: true,
             message: "Tutor profile updated successfully",
             data: result
         })
     } catch (e: any) {
+        console.error("Update tutor profile error:", e);
         res.status(400).json({
             success: false,
-            message: "Tutor profile updated failed",
+            message: e.message || "Tutor profile update failed",
             error: e.message
         })
     }

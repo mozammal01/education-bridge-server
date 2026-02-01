@@ -1,4 +1,4 @@
-import { Role, UserStatus } from "../../generated/prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 
 export interface ApplyAsTutorPayload {
   userId: string;
@@ -8,10 +8,14 @@ export interface ApplyAsTutorPayload {
   categoryId: string;
 }
 export interface UpdateTutorProfilePayload {
-  bio: string;
-  hourlyRate: number;
-  experience: number;
-  categoryId: string;
+  bio?: string;
+  headline?: string;
+  education?: string;
+  hourlyRate?: number;
+  experience?: number;
+  subjects?: string[];
+  languages?: string[];
+  categoryId?: string;
 }
 
 export interface UpdateTutorAvailabilityPayload {

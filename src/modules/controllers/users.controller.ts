@@ -74,10 +74,25 @@ const uploadAvatar = async (req: Request, res: Response) => {
 
 const updateProfile = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?.id as string;
+        const userId = req.user?.id;
+        console.log("Update profile - userId:", userId);
+        console.log("Update profile - body:", req.body);
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            });
+        }
+
         const { name, phone } = req.body;
 
-        const result = await UserService.updateUserById(userId, { name, phone });
+        // Only include defined fields
+        const updateData: { name?: string; phone?: string } = {};
+        if (name !== undefined) updateData.name = name;
+        if (phone !== undefined) updateData.phone = phone;
+
+        const result = await UserService.updateUserById(userId, updateData);
 
         res.status(200).json({
             success: true,
@@ -85,6 +100,7 @@ const updateProfile = async (req: Request, res: Response) => {
             data: result
         });
     } catch (e: any) {
+        console.error("Update profile error:", e);
         res.status(400).json({
             success: false,
             message: e.message || "Profile update failed"

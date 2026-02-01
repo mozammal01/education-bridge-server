@@ -1,17 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import nodemailer from "nodemailer"
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.APP_USER,
-    pass: process.env.APP_PASS,
-  },
-});
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -75,153 +64,6 @@ export const auth = betterAuth({
       enabled: false,
     },
   },
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    callbackURL: process.env.APP_URL || "http://localhost:3000",
-    sendVerificationEmail: async ({ user, url, token }, request) => {
-      try {
-        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
-        const info = await transporter.sendMail({
-          from: '"Education Bridge" <noreply@educationbridge.com>',
-          to: user.email,
-          subject: "Please verify your email!",
-          html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email Verification</title>
-    <style>
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #f4f6f8;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.header {
-  background-color: #0f172a;
-  color: #ffffff;
-  padding: 20px;
-  text-align: center;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 22px;
-}
-
-.content {
-  padding: 30px;
-  color: #334155;
-  line-height: 1.6;
-}
-
-.content h2 {
-  margin-top: 0;
-  font-size: 20px;
-  color: #0f172a;
-}
-
-.button-wrapper {
-  text-align: center;
-  margin: 30px 0;
-}
-
-.verify-button {
-  background-color: #2563eb;
-  color: #ffffff !important;
-  padding: 14px 28px;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-.verify-button:hover {
-  background-color: #1d4ed8;
-}
-
-.footer {
-  background-color: #f1f5f9;
-  padding: 20px;
-  text-align: center;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.link {
-  word-break: break-all;
-  font-size: 13px;
-  color: #2563eb;
-}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header">
-  <h1>Education Bridge</h1>
-</div>
-
-<div class="content">
-  <h2>Verify Your Email Address</h2>
-  <p>
-    Hello ${user.name} <br /><br />
-    Thank you for registering on <strong>Education Bridge</strong>.
-    Please confirm your email address to activate your account.
-  </p>
-
-  <div class="button-wrapper">
-    <a href="${url}" class="verify-button">
-      Verify Email
-    </a>
-  </div>
-
-  <p>
-    If the button doesn't work, copy and paste the link below into your browser:
-  </p>
-
-  <p class="link">
-    ${url}
-  </p>
-
-  <p>
-    This verification link will expire soon for security reasons.
-    If you did not create an account, you can safely ignore this email.
-  </p>
-
-  <p>
-    Regards, <br />
-    <strong>Education Bridge Team</strong>
-  </p>
-</div>
-
-<div class="footer">
-  © 2026 Education Bridge. All rights reserved.
-</div>
-</div>
-</body>
-</html>
-`
-        });
-      } catch (err) {
-        console.error(err)
-        throw err;
-      }
-    },
-  },
-
   socialProviders: {
     google: {
       prompt: "select_account consent",
@@ -229,13 +71,11 @@ body {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       redirectURI: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback/google`,
-      callbackURL: process.env.APP_URL || "http://localhost:3000",
     },
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       redirectURI: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback/github`,
-      callbackURL: process.env.APP_URL || "http://localhost:3000",
     },
   },
 
