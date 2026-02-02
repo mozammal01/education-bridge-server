@@ -68,8 +68,6 @@ const uploadAvatar = async (req: Request, res: Response) => {
                 data: result
             });
         } else if (req.file.buffer) {
-            // Memory storage - production (Vercel)
-            // TODO: Integrate with cloud storage (Cloudinary/S3/Vercel Blob) for production uploads
             return res.status(501).json({
                 success: false,
                 message: "File uploads require cloud storage configuration in production. Please contact support."

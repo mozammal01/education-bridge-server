@@ -11,7 +11,7 @@ dist
 build
 
 # Prisma generated files
-/generated/prisma
+generated/
 
 # Logs
 logs
