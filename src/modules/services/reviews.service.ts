@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 const getReviewsByTutor = async (tutorId: string) => {
     const tutorProfile = await prisma.tutorProfile.findFirst({

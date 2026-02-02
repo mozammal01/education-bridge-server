@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/users.service";
-import { prisma } from "../../lib/prisma";
+import { UserService } from "../services/users.service.js";
+import { prisma } from "../../lib/prisma.js";
 
 
 const getUsers = async (req: Request, res: Response) => {

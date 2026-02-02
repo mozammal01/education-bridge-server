@@ -1,5 +1,5 @@
-import { ApplyAsTutorPayload, TutorFilterParams, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces";
-import { prisma } from "../../lib/prisma";
+import { ApplyAsTutorPayload, TutorFilterParams, UpdateTutorAvailabilityPayload, UpdateTutorProfilePayload } from "../../interfaces/interfaces.js";
+import { prisma } from "../../lib/prisma.js";
 import { Prisma } from "@prisma/client";
 
 

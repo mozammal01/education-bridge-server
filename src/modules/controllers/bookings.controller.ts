@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BookingsService } from "../services/bookings.service";
-import { UserRole } from "../../middlewares/auth";
+import { BookingsService } from "../services/bookings.service.js";
+import { UserRole } from "../../middlewares/auth.js";
 
 
 const createBooking = async (req: Request, res: Response) => {

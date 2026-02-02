@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middlewares/auth";
+import { prisma } from "../../lib/prisma.js";
+import { UserRole } from "../../middlewares/auth.js";
 
 const createBooking = async (studentId: string, tutorId: string, date: string, startTime: string, endTime: string) => {
   const bookingDate = new Date(date);

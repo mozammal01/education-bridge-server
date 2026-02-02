@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
-import auth, { UserRole } from '../../middlewares/auth';
-import { UserController } from '../controllers/users.controller';
-import { uploadAvatar } from '../../config/multer';
+import auth, { UserRole } from '../../middlewares/auth.js';
+import { UserController } from '../controllers/users.controller.js';
+import { uploadAvatar } from '../../config/multer.js';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
-import { UpdateUserPayload } from "../../interfaces/interfaces";
-import { prisma } from "../../lib/prisma";
+import { UpdateUserPayload } from "../../interfaces/interfaces.js";
+import { prisma } from "../../lib/prisma.js";
 import fs from "fs";
 import path from "path";
 

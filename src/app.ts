@@ -2,16 +2,16 @@ import express, { Application } from "express";
 import cors from "cors";
 import path from "path";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth";
-import { notFound } from "./middlewares/notFound";
-import errorHandler from "./middlewares/globalErrorHandler";
-import { tutorRouter } from "./modules/routes/tutor.routes";
-import { prisma } from "./lib/prisma";
-import { categoriesRouter } from "./modules/routes/categories.routes";
-import { bookingsRouter } from "./modules/routes/bookings.routes";
-import { usersRouter } from "./modules/routes/users.routes";
-import { othersRouter } from "./modules/routes/others.routes";
-import { reviewsRouter } from "./modules/routes/reviews.routes";
+import { auth } from "./lib/auth.js";
+import { notFound } from "./middlewares/notFound.js";
+import errorHandler from "./middlewares/globalErrorHandler.js";
+import { tutorRouter } from "./modules/routes/tutor.routes.js";
+import { prisma } from "./lib/prisma.js";
+import { categoriesRouter } from "./modules/routes/categories.routes.js";
+import { bookingsRouter } from "./modules/routes/bookings.routes.js";
+import { usersRouter } from "./modules/routes/users.routes.js";
+import { othersRouter } from "./modules/routes/others.routes.js";
+import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 
 const app: Application = express();
 

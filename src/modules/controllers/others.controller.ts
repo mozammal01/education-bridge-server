@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { OthersService } from "../services/others.service";
-import { UpdateStudentProfilePayload } from "../../interfaces/interfaces";
+import { OthersService } from "../services/others.service.js";
+import { UpdateStudentProfilePayload } from "../../interfaces/interfaces.js";
 
 const createTutorReview = async (req: Request, res: Response) => {
     try {

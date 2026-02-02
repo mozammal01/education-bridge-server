@@ -1,5 +1,5 @@
-import { UpdateStudentProfilePayload } from "../../interfaces/interfaces";
-import { prisma } from "../../lib/prisma";
+import { UpdateStudentProfilePayload } from "../../interfaces/interfaces.js";
+import { prisma } from "../../lib/prisma.js";
 
 
 const createTutorReview = async (studentId: string, tutorId: string, rating: number, comment: string) => {
