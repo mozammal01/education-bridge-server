@@ -5,11 +5,15 @@
       "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["generated/**", "prisma/**"]
+        "includeFiles": ["generated/prisma/**", "prisma/**"]
       }
     }
   ],
   "routes": [
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/uploads/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "api/index.ts"

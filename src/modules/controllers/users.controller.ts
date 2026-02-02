@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/users.service";
+import { prisma } from "../../lib/prisma";
 
 
 const getUsers = async (req: Request, res: Response) => {
@@ -108,9 +109,68 @@ const updateProfile = async (req: Request, res: Response) => {
     }
 }
 
+// Update role after social signup (only STUDENT -> TUTOR allowed)
+const updateRole = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        const currentRole = req.user?.role;
+        const { role } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            });
+        }
+
+        // Only allow STUDENT to TUTOR transition
+        if (currentRole !== "STUDENT" || role !== "TUTOR") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role update. Only Student to Tutor transition is allowed."
+            });
+        }
+
+        // Update user role
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { role: "TUTOR" }
+        });
+
+        // Create tutor profile if it doesn't exist
+        const existingProfile = await prisma.tutorProfile.findUnique({
+            where: { userId }
+        });
+
+        if (!existingProfile) {
+            await prisma.tutorProfile.create({
+                data: {
+                    userId,
+                    bio: "",
+                    hourlyRate: 0,
+                    experience: 0,
+                }
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Role updated successfully",
+            data: updatedUser
+        });
+    } catch (e: any) {
+        console.error("Update role error:", e);
+        res.status(400).json({
+            success: false,
+            message: e.message || "Role update failed"
+        });
+    }
+}
+
 export const UserController = {
     getUsers,
     updateUserById,
     uploadAvatar,
-    updateProfile
+    updateProfile,
+    updateRole
 }

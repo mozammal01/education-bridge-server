@@ -18,6 +18,12 @@ router.patch(
     UserController.updateProfile
 )
 
+router.patch(
+    "/user/role",
+    auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),
+    UserController.updateRole
+)
+
 router.get(
     "/admin/users",
     auth(UserRole.ADMIN),
