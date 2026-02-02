@@ -15,10 +15,18 @@ import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 
 const app: Application = express();
 
-app.use(cors({
+// CORS configuration
+const corsOptions = {
   origin: process.env.APP_URL || "https://education-bridge-client.vercel.app",
-  credentials: true
-}))
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  exposedHeaders: ["set-cookie"],
+};
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
