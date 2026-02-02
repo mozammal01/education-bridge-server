@@ -56,15 +56,30 @@ const uploadAvatar = async (req: Request, res: Response) => {
             });
         }
 
-        const avatarPath = `/uploads/avatars/${req.file.filename}`;
+        // Check if we're using disk storage (has filename) or memory storage (has buffer)
+        if (req.file.filename) {
+            // Disk storage - local development
+            const avatarPath = `/uploads/avatars/${req.file.filename}`;
+            const result = await UserService.updateAvatar(userId, avatarPath);
 
-        const result = await UserService.updateAvatar(userId, avatarPath);
-
-        res.status(200).json({
-            success: true,
-            message: "Image uploaded successfully",
-            data: result
-        });
+            res.status(200).json({
+                success: true,
+                message: "Image uploaded successfully",
+                data: result
+            });
+        } else if (req.file.buffer) {
+            // Memory storage - production (Vercel)
+            // TODO: Integrate with cloud storage (Cloudinary/S3/Vercel Blob) for production uploads
+            return res.status(501).json({
+                success: false,
+                message: "File uploads require cloud storage configuration in production. Please contact support."
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid file upload"
+            });
+        }
     } catch (e: any) {
         res.status(400).json({
             success: false,
