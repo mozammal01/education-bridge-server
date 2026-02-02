@@ -68,9 +68,9 @@ app.use(cors({
 app.use(express.json());
 
 // Serve uploaded files as static assets
-app.use("uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-app.get("api/auth/me", async (req, res) => {
+app.get("/api/auth/me", async (req, res) => {
   try {
     const session = await auth.api.getSession({
       headers: req.headers as any
@@ -111,7 +111,7 @@ app.get("api/auth/me", async (req, res) => {
   }
 });
 
-app.post("api/auth/signout", async (req, res) => {
+app.post("/api/auth/signout", async (req, res) => {
   try {
     const session = await auth.api.getSession({
       headers: req.headers as any
@@ -141,14 +141,14 @@ app.post("api/auth/signout", async (req, res) => {
   }
 });
 
-app.all('api/auth/*splat', toNodeHandler(auth));
+app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.use("api", usersRouter);
-app.use("api", tutorRouter);
-app.use("api", categoriesRouter);
-app.use("api", bookingsRouter);
-app.use("api", reviewsRouter);
-app.use("api", othersRouter);
+app.use("/api", usersRouter);
+app.use("/api", tutorRouter);
+app.use("/api", categoriesRouter);
+app.use("/api", bookingsRouter);
+app.use("/api", reviewsRouter);
+app.use("/api", othersRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello from Education Bridge Server");
