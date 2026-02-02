@@ -15,18 +15,30 @@ import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 
 const app: Application = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: process.env.APP_URL || "https://education-bridge-client.vercel.app",
+const allowedOrigin = process.env.APP_URL || "https://education-bridge-client.vercel.app";
+
+// Manual CORS headers - runs FIRST before anything else
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin");
+  res.header("Access-Control-Expose-Headers", "set-cookie");
+
+  // Handle preflight immediately
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Also use cors middleware as backup
+app.use(cors({
+  origin: allowedOrigin,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
-  exposedHeaders: ["set-cookie"],
-};
-
-// Handle preflight requests
-app.options("*", cors(corsOptions));
-app.use(cors(corsOptions));
+}));
 
 app.use(express.json());
 
