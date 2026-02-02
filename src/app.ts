@@ -16,7 +16,7 @@ import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 const app: Application = express();
 
 app.use(cors({
-  origin: process.env.APP_URL || "http://localhost:3000",
+  origin: process.env.APP_URL || "https://education-bridge-client.vercel.app",
   credentials: true
 }))
 
