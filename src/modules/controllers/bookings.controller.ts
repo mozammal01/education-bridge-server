@@ -8,7 +8,6 @@ const createBooking = async (req: Request, res: Response) => {
         const userId = req.user?.id as string;
         const { tutorId, date, startTime, endTime } = req.body;
 
-        // Validate required fields
         if (!tutorId || !date || !startTime || !endTime) {
             return res.status(400).json({
                 success: false,

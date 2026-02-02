@@ -56,9 +56,7 @@ const uploadAvatar = async (req: Request, res: Response) => {
             });
         }
 
-        // Check if we're using disk storage (has filename) or memory storage (has buffer)
         if (req.file.filename) {
-            // Disk storage - local development
             const avatarPath = `/uploads/avatars/${req.file.filename}`;
             const result = await UserService.updateAvatar(userId, avatarPath);
 
@@ -101,7 +99,6 @@ const updateProfile = async (req: Request, res: Response) => {
 
         const { name, phone } = req.body;
 
-        // Only include defined fields
         const updateData: { name?: string; phone?: string } = {};
         if (name !== undefined) updateData.name = name;
         if (phone !== undefined) updateData.phone = phone;
@@ -122,7 +119,6 @@ const updateProfile = async (req: Request, res: Response) => {
     }
 }
 
-// Update role after social signup (only STUDENT -> TUTOR allowed)
 const updateRole = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -136,7 +132,6 @@ const updateRole = async (req: Request, res: Response) => {
             });
         }
 
-        // Only allow STUDENT to TUTOR transition
         if (currentRole !== "STUDENT" || role !== "TUTOR") {
             return res.status(400).json({
                 success: false,
@@ -144,13 +139,11 @@ const updateRole = async (req: Request, res: Response) => {
             });
         }
 
-        // Update user role
         const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: { role: "TUTOR" }
         });
 
-        // Create tutor profile if it doesn't exist
         const existingProfile = await prisma.tutorProfile.findUnique({
             where: { userId }
         });

@@ -221,7 +221,6 @@ const getMyTutorProfile = async (userId: string) => {
 
 const updateTutorProfile = async (userId: string, payload: UpdateTutorProfilePayload) => {
     try {
-        // Filter out undefined values
         const data: any = {};
         if (payload.bio !== undefined) data.bio = payload.bio;
         if (payload.headline !== undefined) data.headline = payload.headline;
