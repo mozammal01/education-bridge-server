@@ -6,8 +6,12 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  baseURL: process.env.SERVER_URL || "http://localhost:5000",
-  trustedOrigins: [process.env.APP_URL || "https://education-bridge-client.vercel.app"],
+  baseURL: process.env.SERVER_URL || "https://education-bridge-server.vercel.app",
+  trustedOrigins: [
+    "https://education-bridge-client.vercel.app",
+    "http://localhost:3000",
+    process.env.APP_URL || "https://education-bridge-client.vercel.app"
+  ],
   user: {
     additionalFields: {
       phone: {
@@ -70,12 +74,12 @@ export const auth = betterAuth({
       accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      redirectURI: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback/google`,
+      redirectURI: `${process.env.SERVER_URL || "https://education-bridge-server.vercel.app"}/api/auth/callback/google`,
     },
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-      redirectURI: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback/github`,
+      redirectURI: `${process.env.SERVER_URL || "https://education-bridge-server.vercel.app"}/api/auth/callback/github`,
     },
   },
 

@@ -15,29 +15,54 @@ import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 
 const app: Application = express();
 
-const allowedOrigin = process.env.APP_URL || "https://education-bridge-client.vercel.app";
+const allowedOrigins = [
+  "https://education-bridge-client.vercel.app",
+  "http://localhost:3000"
+];
 
-// Manual CORS headers - runs FIRST before anything else
+// CORS middleware - must run FIRST before anything else
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  const origin = req.headers.origin;
+
+  // Check if origin is allowed
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  } else {
+    // Default to production frontend
+    res.header("Access-Control-Allow-Origin", "https://education-bridge-client.vercel.app");
+  }
+
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin");
-  res.header("Access-Control-Expose-Headers", "set-cookie");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, Cookie");
+  res.header("Access-Control-Expose-Headers", "set-cookie, Set-Cookie");
+  res.header("Access-Control-Max-Age", "86400");
 
-  // Handle preflight immediately
+  // Handle preflight immediately - return 204 No Content
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
   next();
 });
 
 // Also use cors middleware as backup
 app.use(cors({
-  origin: allowedOrigin,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now to debug
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "Cookie"],
+  exposedHeaders: ["set-cookie", "Set-Cookie"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 app.use(express.json());
