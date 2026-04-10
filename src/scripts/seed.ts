@@ -292,111 +292,79 @@ async function seed() {
     }
     console.log("Tutor Availability seeded!\n");
 
-    console.log("Seeding Sample Bookings...");
-    if (createdStudents[0] && createdTutors[0]) {
-      const existingBooking = await prisma.booking.findFirst({
-        where: {
-          studentId: createdStudents[0].id,
-          tutorId: createdTutors[0].id
+    console.log("Seeding Realistic Bookings...");
+    const statuses = ["COMPLETED", "CONFIRMED", "CANCELLED"] as const;
+    const timeSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+    
+    // Generate 50 bookings
+    for (let i = 0; i < 50; i++) {
+      const student = createdStudents[Math.floor(Math.random() * createdStudents.length)];
+      const tutor = createdTutors[Math.floor(Math.random() * createdTutors.length)];
+      
+      if (!student || !tutor) continue;
+
+      // Random date in the last 90 days
+      const date = new Date();
+      date.setDate(date.getDate() - Math.floor(Math.random() * 90));
+      
+      const startTime = timeSlots[Math.floor(Math.random() * timeSlots.length)] as string;
+      const endTime = `${(parseInt(startTime.split(':')[0]!) + 1).toString().padStart(2, '0')}:00`;
+
+      await prisma.booking.create({
+        data: {
+          studentId: student.id,
+          tutorId: tutor.id,
+          date,
+          startTime,
+          endTime,
+          status: statuses[Math.floor(Math.random() * statuses.length)] as "COMPLETED" | "CONFIRMED" | "CANCELLED",
         }
       });
-
-      if (!existingBooking) {
-        const bookings = [
-          {
-            studentId: createdStudents[0].id,
-            tutorId: createdTutors[0].id,
-            date: new Date("2026-02-01"),
-            startTime: "10:00",
-            endTime: "11:00",
-            status: "CONFIRMED" as const
-          },
-          {
-            studentId: createdStudents[0].id,
-            tutorId: createdTutors[1].id,
-            date: new Date("2026-02-02"),
-            startTime: "15:00",
-            endTime: "16:00",
-            status: "CONFIRMED" as const
-          },
-          {
-            studentId: createdStudents[1]?.id || createdStudents[0].id,
-            tutorId: createdTutors[2].id,
-            date: new Date("2026-01-28"),
-            startTime: "09:00",
-            endTime: "10:00",
-            status: "COMPLETED" as const
-          }
-        ];
-
-        for (const booking of bookings) {
-          if (booking.studentId && booking.tutorId) {
-            await prisma.booking.create({ data: booking });
-            console.log(`  Created booking for ${booking.date.toISOString().split('T')[0]}`);
-          }
-        }
-      } else {
-        console.log("  Sample bookings already exist, skipping...");
-      }
     }
-    console.log("Sample Bookings seeded!\n");
+    console.log("Realistic Bookings seeded!\n");
 
-    console.log("Seeding Sample Reviews...");
-    if (createdStudents[0] && createdProfiles[0]) {
-      const existingReview = await prisma.review.findFirst({
-        where: {
-          studentId: createdStudents[0].id,
-          tutorId: createdProfiles[0].id
+    console.log("Seeding Realistic Reviews...");
+    const comments = [
+      "Excellent teacher!", "Highly recommend.", "Great experience.", 
+      "Very patient and helpful.", "Best tutor I've had.", "Truly expert knowledge.",
+      "Helped me score higher.", "Amazing teaching style.", "Very professional."
+    ];
+
+    for (const profile of createdProfiles) {
+      if (!profile) continue;
+      
+      const numReviews = Math.floor(Math.random() * 5) + 1;
+      for (let j = 0; j < numReviews; j++) {
+        const student = createdStudents[Math.floor(Math.random() * createdStudents.length)];
+        if (!student) continue;
+
+        const rating = Math.floor(Math.random() * 2) + 4; // 4 or 5 stars
+
+        await prisma.review.create({
+          data: {
+            studentId: student.id,
+            tutorId: profile.id,
+            rating,
+            comment: (comments[Math.floor(Math.random() * comments.length)]) as string
+          }
+        });
+      }
+
+      // Update aggregate ratings
+      const tutorReviews = await prisma.review.findMany({
+        where: { tutorId: profile.id }
+      });
+      const avgRating = tutorReviews.reduce((sum, r) => sum + r.rating, 0) / tutorReviews.length;
+
+      await prisma.tutorProfile.update({
+        where: { id: profile.id },
+        data: {
+          averageRating: avgRating,
+          totalReviews: tutorReviews.length
         }
       });
-
-      if (!existingReview) {
-        const reviews = [
-          {
-            studentId: createdStudents[0].id,
-            tutorId: createdProfiles[0].id,
-            rating: 5,
-            comment: "Excellent teacher! Explained complex concepts so clearly."
-          },
-          {
-            studentId: createdStudents[0].id,
-            tutorId: createdProfiles[1].id,
-            rating: 5,
-            comment: "Great programming tutor. Project-based approach is perfect!"
-          },
-          {
-            studentId: createdStudents[1]?.id || createdStudents[0].id,
-            tutorId: createdProfiles[2].id,
-            rating: 5,
-            comment: "Helped me improve my IELTS score significantly!"
-          }
-        ];
-
-        for (const review of reviews) {
-          if (review.studentId && review.tutorId) {
-            await prisma.review.create({ data: review });
-
-            const tutorReviews = await prisma.review.findMany({
-              where: { tutorId: review.tutorId }
-            });
-            const avgRating = tutorReviews.reduce((sum, r) => sum + r.rating, 0) / tutorReviews.length;
-
-            await prisma.tutorProfile.update({
-              where: { id: review.tutorId },
-              data: {
-                averageRating: avgRating,
-                totalReviews: tutorReviews.length
-              }
-            });
-
-            console.log(`Created review for tutor profile`);
-          }
-        }
-      } else {
-        console.log("  Sample reviews already exist, skipping...");
-      }
     }
-    console.log("Sample Reviews seeded!\n");
+    console.log("Realistic Reviews seeded!\n");
 
     console.log("Seed completed successfully!");
 

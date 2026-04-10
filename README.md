@@ -1,79 +1,66 @@
-# EduBridge Server
+# 🛡️ EduBridge Server — Production-Ready API
 
-Backend API for EduBridge tutoring platform.
+The robust backend engine powering the EduBridge platform. Built with **Express.js**, **Prisma**, and **Better-Auth**, this server follows professional architectural patterns for security, stability, and maintainability.
 
-## Tech
+## 🔐 Production Engineering
 
-- Express.js
-- Prisma ORM
-- PostgreSQL
-- better-auth (authentication)
+This server is engineered for production-grade stability with the following layers:
 
-## Setup
+### 1. Security Hardening
+- **Helmet**: Integrated for 15+ essential security headers.
+- **CORS**: Strictly configured for production/local domains.
+- **Rate Limiting**: Implementation of `express-rate-limit` to prevent DDoS and brute-force attacks on all API endpoints.
 
-1. Install dependencies:
-```bash
-npm install
-```
+### 2. Advanced Error Management
+- **Custom `AppError`**: Standardized class for operational errors.
+- **Global Error Handler**: Environment-aware handler providing detailed stack traces in `development` and sanitized messages in `production`.
+- **Async Wrapper**: `catchAsync` utility to eliminate repetitive `try/catch` boilerplate and ensure 100% process safety.
+- **Graceful Shutdown**: Proactive handling of `unhandledRejection` and `uncaughtException`.
 
-2. Create `.env` file:
-```
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-BETTER_AUTH_SECRET=random_secret_key
-SERVER_URL=http://localhost:5000
-APP_URL=http://localhost:3000
+### 3. Professional Patterns
+- **`sendResponse`**: Utility ensures 100% consistent JSON output across all modules.
+- **ES Modules**: Modern `type: module` architecture with `.js` resolution.
 
-# Optional - for social login
-GOOGLE_CLIENT_ID=your_id
-GOOGLE_CLIENT_SECRET=your_secret
-GITHUB_CLIENT_ID=your_id
-GITHUB_CLIENT_SECRET=your_secret
-```
+## 💻 Tech Stack
 
-3. Run migrations:
-```bash
-npx prisma migrate dev
-```
+- **Framework**: Express.js (v5.x)
+- **ORM**: Prisma (PostgreSQL)
+- **Auth**: Better-Auth (Session-based)
+- **Validation**: Zod (Professional schema validation)
 
-4. Seed database (optional):
-```bash
-npm run seed
-```
+## ⚒️ Setup & Installation
 
-5. Start server:
-```bash
-npm run dev
-```
+1. **Environment Variables**:
+   Create a `.env` file:
+   ```env
+   DATABASE_URL=postgresql://user:password@host:5432/dbname
+   BETTER_AUTH_SECRET=your_secret
+   SERVER_URL=http://localhost:5000
+   APP_URL=http://localhost:3000
+   ```
 
-## API Endpoints
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-**Auth**
-- POST `/api/auth/sign-up/email` - Register
-- POST `/api/auth/sign-in/email` - Login
-- GET `/api/auth/me` - Get current user
+3. **Database Migration**:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
 
-**Tutors**
-- GET `/api/tutors` - List all tutors
-- GET `/api/tutors/:id` - Get tutor details
-- PUT `/api/tutor/profile` - Update tutor profile
-- PUT `/api/tutor/availability` - Set availability
+4. **Realistic Seeding**:
+   Populate the database with 50+ realistic records for dashboard testing:
+   ```bash
+   npm run seed
+   ```
 
-**Bookings**
-- POST `/api/bookings` - Create booking
-- GET `/api/bookings` - Get user's bookings
-- PATCH `/api/bookings/:id/status` - Update booking status
+5. **Start Dev Server**:
+   ```bash
+   npm run dev
+   ```
 
-**Categories**
-- GET `/api/categories` - List categories
+## 📄 License
+This project is licensed under the MIT License.
 
-**Reviews**
-- POST `/api/reviews` - Create review
-- GET `/api/reviews/tutor/:tutorId` - Get tutor reviews
-
-**Admin**
-- GET `/api/users` - List all users
-- PATCH `/api/users/:id` - Update user
-
-## Deployment
-
-Deployed on Vercel. Push to main branch triggers auto-deploy.
