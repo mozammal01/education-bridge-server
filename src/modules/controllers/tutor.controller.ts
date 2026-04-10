@@ -1,211 +1,153 @@
 import { Request, Response } from "express";
 import { TutorService } from "../services/tutor.service.js";
-import { OthersService } from "../services/others.service.js";
+import catchAsync from "../../utils/catchAsync.js";
+import sendResponse from "../../utils/sendResponse.js";
+import AppError from "../../errors/AppError.js";
 
+const getTutors = catchAsync(async (req: Request, res: Response) => {
+    const {
+        categoryId,
+        category,
+        minRating,
+        maxRating,
+        minPrice,
+        maxPrice,
+        search,
+        sortBy,
+        sortOrder,
+        page,
+        limit
+    } = req.query;
 
-const getTutors = async (req: Request, res: Response) => {
-    try {
-        const {
-            categoryId,
-            category,
-            minRating,
-            maxRating,
-            minPrice,
-            maxPrice,
-            search,
-            sortBy,
-            sortOrder,
-            page,
-            limit
-        } = req.query;
+    const filters: Record<string, any> = {
+        page: page ? parseInt(page as string) : 1,
+        limit: limit ? parseInt(limit as string) : 100
+    };
 
-        const filters: Record<string, any> = {
-            page: page ? parseInt(page as string) : 1,
-            limit: limit ? parseInt(limit as string) : 100
-        };
+    if (categoryId) filters.categoryId = categoryId as string;
+    if (category) filters.categorySlug = category as string;
+    if (minRating) filters.minRating = parseFloat(minRating as string);
+    if (maxRating) filters.maxRating = parseFloat(maxRating as string);
+    if (minPrice) filters.minPrice = parseFloat(minPrice as string);
+    if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
+    if (search) filters.search = search as string;
+    if (sortBy) filters.sortBy = sortBy as 'rating' | 'price' | 'experience';
+    if (sortOrder) filters.sortOrder = sortOrder as 'asc' | 'desc';
 
-        if (categoryId) filters.categoryId = categoryId as string;
-        if (category) filters.categorySlug = category as string;
-        if (minRating) filters.minRating = parseFloat(minRating as string);
-        if (maxRating) filters.maxRating = parseFloat(maxRating as string);
-        if (minPrice) filters.minPrice = parseFloat(minPrice as string);
-        if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
-        if (search) filters.search = search as string;
-        if (sortBy) filters.sortBy = sortBy as 'rating' | 'price' | 'experience';
-        if (sortOrder) filters.sortOrder = sortOrder as 'asc' | 'desc';
+    const result = await TutorService.getTutors(filters);
 
-        const result = await TutorService.getTutors(filters)
-        res.status(200).json({
-            success: true,
-            message: "Tutors fetched successfully",
-            data: result.tutors,
-            meta: result.meta
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: "Tutors fetched failed",
-            error: e.message
-        })
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutors fetched successfully",
+        data: result.tutors,
+        meta: result.meta
+    });
+});
+
+const getTutorById = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await TutorService.getTutorById(id as string);
+
+    if (!result) {
+        throw new AppError(404, "Tutor not found");
     }
-}
 
-const getTutorById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const result = await TutorService.getTutorById(id as string)
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutor fetched successfully",
+        data: result
+    });
+});
 
-        if (!result) {
-            return res.status(404).json({
-                success: false,
-                message: "Tutor not found"
-            })
-        }
+const getMyTutorProfile = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id as string;
+    const result = await TutorService.getMyTutorProfile(userId);
 
-        res.status(200).json({
-            success: true,
-            message: "Tutor fetched successfully",
-            data: result
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: "Tutor fetched failed",
-            error: e.message
-        })
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutor profile fetched successfully",
+        data: result
+    });
+});
+
+const updateTutorProfile = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        throw new AppError(401, "User not authenticated");
     }
-}
 
-const getMyTutorProfile = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?.id as string;
-        const result = await TutorService.getMyTutorProfile(userId);
-        res.status(200).json({
-            success: true,
-            message: "Tutor profile fetched successfully",
-            data: result
-        });
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: e.message || "Failed to fetch tutor profile"
-        });
+    const result = await TutorService.updateTutorProfile(userId, req.body);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutor profile updated successfully",
+        data: result
+    });
+});
+
+const updateTutorAvailability = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id as string;
+    const { availability } = req.body;
+
+    if (!Array.isArray(availability)) {
+        throw new AppError(400, "Availability must be an array");
     }
-}
 
-const updateTutorProfile = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?.id;
-        console.log("Update tutor profile - userId:", userId);
-        console.log("Update tutor profile - body:", req.body);
+    const result = await TutorService.updateTutorAvailability(userId, availability);
 
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "User not authenticated"
-            });
-        }
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutor availability updated successfully",
+        data: result
+    });
+});
 
-        const result = await TutorService.updateTutorProfile(userId, req.body)
-        res.status(200).json({
-            success: true,
-            message: "Tutor profile updated successfully",
-            data: result
-        })
-    } catch (e: any) {
-        console.error("Update tutor profile error:", e);
-        res.status(400).json({
-            success: false,
-            message: e.message || "Tutor profile update failed",
-            error: e.message
-        })
+const getTutorAvailability = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id as string;
+    const result = await TutorService.getTutorAvailability(userId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Tutor availability fetched successfully",
+        data: result
+    });
+});
+
+const applyAsTutor = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        throw new AppError(401, "User not authenticated");
     }
-}
 
-const updateTutorAvailability = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?.id as string;
-        const { availability } = req.body;
+    const { bio, hourlyRate, experience, categoryId } = req.body;
 
-        if (!Array.isArray(availability)) {
-            return res.status(400).json({
-                success: false,
-                message: "Availability must be an array"
-            });
-        }
-
-        const result = await TutorService.updateTutorAvailability(userId, availability);
-        res.status(200).json({
-            success: true,
-            message: "Tutor availability updated successfully",
-            data: result
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: e.message || "Tutor availability update failed"
-        })
+    if (!bio || !hourlyRate || !experience || !categoryId) {
+        throw new AppError(400, "Missing required fields: bio, hourlyRate, experience, categoryId");
     }
-}
 
-const getTutorAvailability = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?.id as string;
-        const result = await TutorService.getTutorAvailability(userId);
-        res.status(200).json({
-            success: true,
-            message: "Tutor availability fetched successfully",
-            data: result
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: e.message || "Failed to fetch availability"
-        })
-    }
-}
+    const result = await TutorService.applyAsTutor({
+        userId,
+        bio,
+        hourlyRate: parseFloat(hourlyRate),
+        experience: parseInt(experience),
+        categoryId
+    });
 
-const applyAsTutor = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?.id;
-
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "User not authenticated"
-            })
-        }
-
-        const { bio, hourlyRate, experience, categoryId } = req.body;
-
-        if (!bio || !hourlyRate || !experience || !categoryId) {
-            return res.status(400).json({
-                success: false,
-                message: "Missing required fields: bio, hourlyRate, experience, categoryId"
-            })
-        }
-
-        const result = await TutorService.applyAsTutor({
-            userId,
-            bio,
-            hourlyRate: parseFloat(hourlyRate),
-            experience: parseInt(experience),
-            categoryId
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Successfully registered as a tutor!",
-            data: result
-        })
-    } catch (e: any) {
-        res.status(400).json({
-            success: false,
-            message: e.message || "Failed to apply as tutor"
-        })
-    }
-}
-
+    sendResponse(res, {
+        statusCode: 201,
+        success: true,
+        message: "Successfully registered as a tutor!",
+        data: result
+    });
+});
 
 export const TutorController = {
     getTutors,

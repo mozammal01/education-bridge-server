@@ -1,6 +1,8 @@
 import express, { Application } from "express";
 import cors from "cors";
 import path from "path";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 import { notFound } from "./middlewares/notFound.js";
@@ -15,6 +17,8 @@ import { reviewsRouter } from "./modules/routes/reviews.routes.js";
 
 const app: Application = express();
 
+// Security Middlewares
+app.use(helmet());
 app.use(cors({
   origin: ["https://education-bridge-client.vercel.app", "http://localhost:3000"],
   credentials: true,
@@ -22,6 +26,14 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "Cookie"],
   exposedHeaders: ["set-cookie", "Set-Cookie"]
 }));
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes"
+});
+app.use("/api", limiter);
 
 app.use(express.json());
 

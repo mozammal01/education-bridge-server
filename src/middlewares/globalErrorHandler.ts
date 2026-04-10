@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { Prisma } from "@prisma/client";
+import AppError from "../errors/AppError.js";
 
 function errorHandler(
     err: any,
@@ -7,51 +8,42 @@ function errorHandler(
     res: Response,
     next: NextFunction
 ) {
-    let statusCode = 500;
-    let errorMessage = "Internal Server Error";
-    let errorDetails = err;
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Something went wrong!";
+    let errorSources: any = err;
 
+    // Custom AppError
+    if (err instanceof AppError) {
+        statusCode = err.statusCode;
+        message = err.message;
+    }
     // PrismaClientValidationError
-    if (err instanceof Prisma.PrismaClientValidationError) {
+    else if (err instanceof Prisma.PrismaClientValidationError) {
         statusCode = 400;
-        errorMessage = "You provide incorrect field type or missing fields!"
+        message = "Validation Error: Incorrect field type or missing fields!";
     }
     // PrismaClientKnownRequestError
     else if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === "P2025") {
-            statusCode = 400;
-            errorMessage = "An operation failed because it depends on one or more records that were required but not found."
+            statusCode = 404;
+            message = "Record not found!";
         }
         else if (err.code === "P2002") {
             statusCode = 400;
-            errorMessage = "Duplicate key error"
+            message = "Duplicate entry detected!";
         }
         else if (err.code === "P2003") {
             statusCode = 400;
-            errorMessage = "Foreign key constraint failed"
-        }
-    }
-    else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-        statusCode = 500;
-        errorMessage = "Error occurred during query execution"
-    }
-    else if (err instanceof Prisma.PrismaClientInitializationError) {
-        if (err.errorCode === "P1000") {
-            statusCode = 401;
-            errorMessage = "Authentication failed. Please check your creditials!"
-        }
-        else if (err.errorCode === "P1001") {
-            statusCode = 400;
-            errorMessage = "Can't reach database server"
+            message = "Foreign key constraint failed!";
         }
     }
 
-    res.status(statusCode)
-    res.json({
+    return res.status(statusCode).json({
         success: false,
-        message: errorMessage,
-        error: errorDetails
-    })
+        message,
+        errorSources: process.env.NODE_ENV === 'development' ? errorSources : null,
+        stack: process.env.NODE_ENV === 'development' ? err?.stack : null,
+    });
 }
 
 export default errorHandler;
