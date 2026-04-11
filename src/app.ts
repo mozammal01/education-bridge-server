@@ -14,6 +14,7 @@ import { bookingsRouter } from "./modules/routes/bookings.routes.js";
 import { usersRouter } from "./modules/routes/users.routes.js";
 import { othersRouter } from "./modules/routes/others.routes.js";
 import { reviewsRouter } from "./modules/routes/reviews.routes.js";
+import { adminRouter } from "./modules/routes/admin.routes.js";
 
 const app: Application = express();
 
@@ -116,6 +117,7 @@ app.use("/api", tutorRouter);
 app.use("/api", categoriesRouter);
 app.use("/api", bookingsRouter);
 app.use("/api", reviewsRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api", othersRouter);
 
 app.get("/", (req, res) => {
