@@ -41,6 +41,8 @@ export interface TutorFilterParams {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
+  location?: string;
+  dayOfWeek?: number;
   sortBy?: 'rating' | 'price' | 'experience';
   sortOrder?: 'asc' | 'desc';
   page?: number;

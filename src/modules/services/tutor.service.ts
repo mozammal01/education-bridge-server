@@ -13,6 +13,8 @@ const getTutors = async (filters: TutorFilterParams & { categorySlug?: string } 
         minPrice,
         maxPrice,
         search,
+        location,
+        dayOfWeek,
         sortBy = 'createdAt',
         sortOrder = 'desc',
         page = 1,
@@ -63,6 +65,24 @@ const getTutors = async (filters: TutorFilterParams & { categorySlug?: string } 
             name: {
                 contains: search,
                 mode: 'insensitive'
+            }
+        };
+    }
+
+    if (location) {
+        const locationFilter = { contains: location, mode: 'insensitive' as const };
+        where.OR = [
+            ...(where.OR || []),
+            { headline: locationFilter },
+            { bio: locationFilter }
+        ];
+    }
+
+    if (dayOfWeek !== undefined) {
+        where.availability = {
+            some: {
+                dayOfWeek: Number(dayOfWeek),
+                isAvailable: true
             }
         };
     }
