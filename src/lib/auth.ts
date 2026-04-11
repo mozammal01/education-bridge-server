@@ -81,6 +81,11 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       redirectURI: `${process.env.SERVER_URL || "https://education-bridge-server.vercel.app"}/api/auth/callback/github`,
     },
+    facebook: {
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+      redirectURI: `${process.env.SERVER_URL || "https://education-bridge-server.vercel.app"}/api/auth/callback/facebook`,
+    },
   },
 
 });
