@@ -21,7 +21,7 @@ const getTutors = catchAsync(async (req: Request, res: Response) => {
 
     const filters: Record<string, any> = {
         page: page ? parseInt(page as string) : 1,
-        limit: limit ? parseInt(limit as string) : 100
+        limit: limit ? parseInt(limit as string) : 12
     };
 
     if (categoryId) filters.categoryId = categoryId as string;

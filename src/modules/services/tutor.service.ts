@@ -16,7 +16,7 @@ const getTutors = async (filters: TutorFilterParams & { categorySlug?: string } 
         sortBy = 'createdAt',
         sortOrder = 'desc',
         page = 1,
-        limit = 100
+        limit = 12
     } = filters;
 
     const where: Prisma.TutorProfileWhereInput = {};
