@@ -12,6 +12,11 @@ export const auth = betterAuth({
     "https://education-bridge-client.vercel.app",
     "http://localhost:3000",
   ].filter(Boolean) as string[],
+  account: {
+    accountLinking: {
+      enabled: true,
+    }
+  },
   user: {
     additionalFields: {
       phone: {
