@@ -33,7 +33,7 @@ const auth = (...roles: UserRole[]) => {
             if (!session) {
                 return res.status(401).json({
                     success: false,
-                    message: "You are not authorized!"
+                    message: "Authentication required. Please sign in to continue."
                 })
             }
 
@@ -53,7 +53,7 @@ const auth = (...roles: UserRole[]) => {
             if (roles.length && !roles.includes(req.user.role as UserRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Forbidden! You don't have permission to access this resources!"
+                    message: "Access Denied. This feature is restricted to students only."
                 })
             }
 
