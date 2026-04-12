@@ -6,12 +6,12 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  baseURL: process.env.SERVER_URL || "https://education-bridge-server.vercel.app",
+  baseURL: process.env.BETTER_AUTH_URL || process.env.SERVER_URL,
   trustedOrigins: [
+    process.env.APP_URL || "http://localhost:3000",
     "https://education-bridge-client.vercel.app",
     "http://localhost:3000",
-    process.env.APP_URL || "https://education-bridge-client.vercel.app"
-  ],
+  ].filter(Boolean) as string[],
   user: {
     additionalFields: {
       phone: {
@@ -82,6 +82,7 @@ export const auth = betterAuth({
     facebook: {
       clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+      scope: ["email", "public_profile"],
     },
   },
 
