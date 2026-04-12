@@ -29,7 +29,45 @@ const getReviewsByTutor = async (tutorId: string) => {
     });
 };
 
-const createReview = async (studentId: string, tutorId: string, rating: number, comment: string) => {
+const getPlatformReviews = async () => {
+    return await prisma.review.findMany({
+        where: { tutorId: null },
+        include: {
+            student: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true
+                }
+            }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 10
+    });
+};
+
+const createReview = async (studentId: string, tutorId: string | null, rating: number, comment: string) => {
+    if (!tutorId) {
+        // Platform review
+        return await prisma.review.create({
+            data: {
+                studentId,
+                tutorId: null,
+                rating,
+                comment
+            },
+            include: {
+                student: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                }
+            }
+        });
+    }
+
     const tutorProfile = await prisma.tutorProfile.findFirst({
         where: {
             OR: [
@@ -90,5 +128,6 @@ const createReview = async (studentId: string, tutorId: string, rating: number, 
 
 export const ReviewsService = {
     getReviewsByTutor,
+    getPlatformReviews,
     createReview
 };

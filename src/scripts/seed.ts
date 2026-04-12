@@ -324,16 +324,25 @@ async function seed() {
     console.log("Realistic Bookings seeded!\n");
 
     console.log("Seeding Realistic Reviews...");
-    const comments = [
+    const tutorComments = [
       "Excellent teacher!", "Highly recommend.", "Great experience.", 
       "Very patient and helpful.", "Best tutor I've had.", "Truly expert knowledge.",
       "Helped me score higher.", "Amazing teaching style.", "Very professional."
     ];
 
+    const platformComments = [
+      "EduBridge is the best platform I've used for finding tutors. Very easy to use!",
+      "I love how I can find experts for almost any subject here. Highly recommended.",
+      "The virtual classroom feature is a game-changer. Learning is so much smoother now.",
+      "Great experience finding a math tutor for my son. The process was seamless.",
+      "Finally a platform that actually verifies their tutors. Feels very safe and professional.",
+      "The customer support team helped me find the perfect match when I was stuck. 5 stars!"
+    ];
+
     for (const profile of createdProfiles) {
       if (!profile) continue;
       
-      const numReviews = Math.floor(Math.random() * 5) + 1;
+      const numReviews = Math.floor(Math.random() * 3) + 2; // 2 to 4 reviews per tutor
       for (let j = 0; j < numReviews; j++) {
         const student = createdStudents[Math.floor(Math.random() * createdStudents.length)];
         if (!student) continue;
@@ -345,7 +354,7 @@ async function seed() {
             studentId: student.id,
             tutorId: profile.id,
             rating,
-            comment: (comments[Math.floor(Math.random() * comments.length)]) as string
+            comment: (tutorComments[Math.floor(Math.random() * tutorComments.length)]) as string
           }
         });
       }
@@ -364,7 +373,23 @@ async function seed() {
         }
       });
     }
-    console.log("Realistic Reviews seeded!\n");
+
+    console.log("Seeding Platform Reviews...");
+    for (let i = 0; i < platformComments.length; i++) {
+        const student = createdStudents[Math.floor(Math.random() * createdStudents.length)];
+        if (!student) continue;
+
+        await prisma.review.create({
+            data: {
+                studentId: student.id,
+                tutorId: null,
+                rating: 5,
+                comment: platformComments[i] as string
+            }
+        });
+    }
+    console.log("Platform Reviews seeded!\n");
+
 
     console.log("Seed completed successfully!");
 

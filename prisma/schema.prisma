@@ -151,11 +151,11 @@ model Booking {
 model Review {
   id        String   @id @default(cuid())
   studentId String
-  tutorId   String
+  tutorId   String?
   rating    Int
   comment   String
   createdAt DateTime @default(now())
 
-  student User         @relation("studentReviews", fields: [studentId], references: [id])
-  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
+  student User          @relation("studentReviews", fields: [studentId], references: [id])
+  tutor   TutorProfile? @relation(fields: [tutorId], references: [id])
 }

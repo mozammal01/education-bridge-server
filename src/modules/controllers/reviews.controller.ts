@@ -18,19 +18,35 @@ const getReviewsByTutor = async (req: Request, res: Response) => {
     }
 };
 
+const getPlatformReviews = async (req: Request, res: Response) => {
+    try {
+        const result = await ReviewsService.getPlatformReviews();
+        res.status(200).json({
+            success: true,
+            message: "Platform reviews fetched successfully",
+            data: result
+        });
+    } catch (e: any) {
+        res.status(400).json({
+            success: false,
+            message: e.message || "Failed to fetch platform reviews"
+        });
+    }
+};
+
 const createReview = async (req: Request, res: Response) => {
     try {
         const studentId = req.user?.id as string;
         const { tutorId, rating, comment } = req.body;
 
-        if (!tutorId || !rating || !comment) {
+        if (!rating || !comment) {
             return res.status(400).json({
                 success: false,
-                message: "Missing required fields: tutorId, rating, comment"
+                message: "Missing required fields: rating, comment"
             });
         }
 
-        const result = await ReviewsService.createReview(studentId, tutorId, rating, comment);
+        const result = await ReviewsService.createReview(studentId, tutorId || null, rating, comment);
         res.status(201).json({
             success: true,
             message: "Review submitted successfully",
@@ -46,5 +62,6 @@ const createReview = async (req: Request, res: Response) => {
 
 export const ReviewsController = {
     getReviewsByTutor,
+    getPlatformReviews,
     createReview
 };

@@ -4,6 +4,7 @@ import auth, { UserRole } from '../../middlewares/auth.js';
 
 const router = Router();
 
+router.get("/reviews/platform", ReviewsController.getPlatformReviews);
 router.get("/reviews/:tutorId", ReviewsController.getReviewsByTutor);
 
 router.post("/reviews", auth(UserRole.STUDENT), ReviewsController.createReview);
